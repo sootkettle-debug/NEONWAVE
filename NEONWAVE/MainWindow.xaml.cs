@@ -99,7 +99,7 @@ public partial class MainWindow : Window
             DisposeAudio();
             currentIndex = index;
             Playlist.SelectedIndex = index;
-            reader = new AudioFileReader(tracks[index].Path) { Volume = VolumeSlider.Value / 100.0f };
+            reader = new AudioFileReader(tracks[index].Path) { Volume = (float)(VolumeSlider.Value / 100.0) };
             equalizer = new EqualizerSampleProvider(reader);
             ApplyEq();
             output = new WaveOutEvent();
