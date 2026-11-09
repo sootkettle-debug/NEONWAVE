@@ -6,6 +6,14 @@
  AllowDrop="True" Drop="Window_Drop" DragOver="Window_DragOver"
  KeyDown="Window_KeyDown">
  <Window.Resources>
+  <Storyboard x:Key="LogoPulse" RepeatBehavior="Forever" AutoReverse="True">
+   <DoubleAnimation Storyboard.TargetName="LogoGlow" Storyboard.TargetProperty="Opacity"
+                    From="0.78" To="1" Duration="0:0:0.85"/>
+   <DoubleAnimation Storyboard.TargetName="LogoGlow" Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.BlurRadius)"
+                    From="17" To="31" Duration="0:0:0.85"/>
+   <ColorAnimation Storyboard.TargetName="LogoGlow" Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
+                   From="#FF4BD8" To="#36F5FF" Duration="0:0:1.1"/>
+  </Storyboard>
   <Style TargetType="ListBox"><Setter Property="Background" Value="#0C0D1B"/><Setter Property="Foreground" Value="#E9E9FA"/><Setter Property="BorderThickness" Value="0"/><Setter Property="Padding" Value="8"/></Style>
   <Style TargetType="ListBoxItem"><Setter Property="Padding" Value="10,9"/><Setter Property="Margin" Value="0,2"/><Setter Property="Background" Value="#121326"/><Setter Property="BorderThickness" Value="0"/></Style>
   <Style TargetType="Slider"><Setter Property="Foreground" Value="#36F5FF"/></Style>
@@ -35,7 +43,7 @@
     <TextBlock Text="N E O N W A V E" FontSize="27" FontWeight="Bold" Foreground="#36F5FF"/>
     <TextBlock Text="S Y N T H W A V E   A U D I O   S Y S T E M" FontSize="10" Foreground="#8586A8" Margin="2,4,0,0"/>
    </StackPanel>
-   <Border Grid.Column="1" Width="62" Height="62" CornerRadius="31" HorizontalAlignment="Center" VerticalAlignment="Center"
+   <Border x:Name="LogoGlow" Grid.Column="1" Width="62" Height="62" CornerRadius="31" HorizontalAlignment="Center" VerticalAlignment="Center"
            BorderThickness="2" BorderBrush="#FF4BD8" Background="#17132D">
     <Border.Effect>
      <DropShadowEffect Color="#FF32D2" BlurRadius="24" ShadowDepth="0" Opacity="0.9"/>
