@@ -245,16 +245,7 @@ public partial class MainWindow : Window
             playbackOutput.PlaybackStopped += (_, args) =>
             {
                 if (args.Exception != null) return;
-                Dispatcher.BeginInvoke(() =>
-                {
-                    if (!ReferenceEquals(output, playbackOutput) ||
-                        !ReferenceEquals(reader, playbackReader)) return;
-                    if (!advanceQueued && playbackReader.Position >= playbackReader.Length - 1)
-                    {
-                        advanceQueued = true;
-                        NextTrack();
-                    }
-                });
+                Dispatcher.BeginInvoke(() => TryAdvanceEndedTrack(playbackOutput, playbackReader));
             };
             playbackOutput.Play();
             SetLogoPulse(true);
@@ -318,8 +309,31 @@ public partial class MainWindow : Window
         reader = null;
     }
 
+    private void TryAdvanceEndedTrack(WaveOutEvent expectedOutput, AudioFileReader expectedReader)
+    {
+        // PlaybackStopped can arrive on an audio callback thread. Only inspect the
+        // current playback objects on the UI thread, and ignore callbacks from old tracks.
+        if (!ReferenceEquals(output, expectedOutput) ||
+            !ReferenceEquals(reader, expectedReader) ||
+            advanceQueued ||
+            expectedOutput.PlaybackState != PlaybackState.Stopped)
+            return;
+
+        var reachedEnd =
+            expectedReader.Position >= expectedReader.Length - 1 ||
+            expectedReader.CurrentTime >= expectedReader.TotalTime - TimeSpan.FromMilliseconds(500);
+
+        if (!reachedEnd) return;
+
+        advanceQueued = true;
+        NextTrack();
+    }
+
     private void UpdateDisplay()
     {
+        if (output != null && reader != null)
+            TryAdvanceEndedTrack(output, reader);
+
         if (reader == null) return;
         ElapsedText.Text = FormatTime(reader.CurrentTime);
         DurationText.Text = FormatTime(reader.TotalTime);
