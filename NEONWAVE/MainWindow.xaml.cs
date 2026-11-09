@@ -155,7 +155,8 @@ public partial class MainWindow : Window
         draggingSeek = false;
     }
     private void EqSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) => ApplyEq();
-\n    private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+
+    private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         if (VolumeText != null) VolumeText.Text = $"{(int)VolumeSlider.Value}%";
         if (reader != null) reader.Volume = (float)(VolumeSlider.Value / 100);
