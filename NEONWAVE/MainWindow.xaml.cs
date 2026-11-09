@@ -6,7 +6,9 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Effects;
 using System.Windows.Threading;
 
 namespace NEONWAVE;
@@ -218,10 +220,46 @@ public partial class MainWindow : Window
 
     private void SetLogoPulse(bool isPlaying)
     {
-        if (FindResource("LogoPulse") is not Storyboard pulse) return;
+        if (LogoGlow == null) return;
 
-        if (isPlaying) pulse.Begin(this, true);
-        else pulse.Stop(this);
+        if (LogoGlow.Effect is not DropShadowEffect glow)
+        {
+            glow = new DropShadowEffect { ShadowDepth = 0, Opacity = 0.9 };
+            LogoGlow.Effect = glow;
+        }
+
+        if (isPlaying)
+        {
+            var pulse = new DoubleAnimation(0.72, 1.0, TimeSpan.FromSeconds(0.85))
+            {
+                AutoReverse = true,
+                RepeatBehavior = RepeatBehavior.Forever
+            };
+            var glowPulse = new DoubleAnimation(16, 34, TimeSpan.FromSeconds(0.85))
+            {
+                AutoReverse = true,
+                RepeatBehavior = RepeatBehavior.Forever
+            };
+            var colorPulse = new ColorAnimation(Color.FromRgb(255, 59, 200), Color.FromRgb(54, 245, 255),
+                TimeSpan.FromSeconds(1.1))
+            {
+                AutoReverse = true,
+                RepeatBehavior = RepeatBehavior.Forever
+            };
+
+            LogoGlow.BeginAnimation(UIElement.OpacityProperty, pulse);
+            glow.BeginAnimation(DropShadowEffect.BlurRadiusProperty, glowPulse);
+            glow.BeginAnimation(DropShadowEffect.ColorProperty, colorPulse);
+        }
+        else
+        {
+            LogoGlow.BeginAnimation(UIElement.OpacityProperty, null);
+            glow.BeginAnimation(DropShadowEffect.BlurRadiusProperty, null);
+            glow.BeginAnimation(DropShadowEffect.ColorProperty, null);
+            LogoGlow.Opacity = 1;
+            glow.BlurRadius = 24;
+            glow.Color = Color.FromRgb(255, 50, 210);
+        }
     }
 
     private void DisposeAudio()
