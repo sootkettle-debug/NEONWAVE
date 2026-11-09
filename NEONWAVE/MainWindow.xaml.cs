@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Animation;
 using System.Windows.Threading;
 
 namespace NEONWAVE;
@@ -128,11 +129,13 @@ public partial class MainWindow : Window
         if (output?.PlaybackState == PlaybackState.Playing)
         {
             output.Pause();
+            SetLogoPulse(false);
             PlayButton.Content = "▶";
         }
         else if (output?.PlaybackState == PlaybackState.Paused)
         {
             output.Play();
+            SetLogoPulse(true);
             PlayButton.Content = "Ⅱ";
         }
         else if (tracks.Count > 0)
@@ -156,6 +159,7 @@ public partial class MainWindow : Window
 
     private void Stop_Click(object sender, RoutedEventArgs e)
     {
+        SetLogoPulse(false);
         output?.Stop();
         if (reader != null) reader.Position = 0;
         PlayButton.Content = "▶";
@@ -176,14 +180,28 @@ public partial class MainWindow : Window
                 Volume = (float)(VolumeSlider.Value / 100.0)
             };
 
-            output = new WaveOutEvent();
-            output.Init(reader);
-            output.PlaybackStopped += (_, args) => Dispatcher.Invoke(() =>
+            var playbackReader = reader;
+            var playbackOutput = new WaveOutEvent();
+            output = playbackOutput;
+            playbackOutput.Init(playbackReader);
+            playbackOutput.PlaybackStopped += (_, args) =>
             {
-                if (args.Exception == null && reader != null && reader.Position >= reader.Length - 1)
-                    NextTrack();
-            });
-            output.Play();
+                if (args.Exception != null || playbackReader.Position < playbackReader.Length - 1)
+                    return;
+
+                Dispatcher.BeginInvoke(() =>
+                {
+                    // Ignore delayed stop events from an old track or a manual stop.
+                    if (ReferenceEquals(output, playbackOutput) &&
+                        ReferenceEquals(reader, playbackReader) &&
+                        playbackReader.Position >= playbackReader.Length - 1)
+                    {
+                        NextTrack();
+                    }
+                });
+            };
+            playbackOutput.Play();
+            SetLogoPulse(true);
             PlayButton.Content = "Ⅱ";
             TrackTitle.Text = tracks[index].DisplayName;
             TrackInfo.Text = tracks[index].Path;
@@ -198,14 +216,26 @@ public partial class MainWindow : Window
         }
     }
 
+    private void SetLogoPulse(bool isPlaying)
+    {
+        if (FindResource("LogoPulse") is not Storyboard pulse) return;
+
+        if (isPlaying) pulse.Begin(this, true);
+        else pulse.Stop(this);
+    }
+
     private void DisposeAudio()
     {
+        SetLogoPulse(false);
+
         if (output != null)
         {
-            output.Stop();
-            output.Dispose();
+            var oldOutput = output;
             output = null;
+            oldOutput.Stop();
+            oldOutput.Dispose();
         }
+
         reader?.Dispose();
         reader = null;
     }
