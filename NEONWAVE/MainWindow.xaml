@@ -40,7 +40,7 @@
     <Grid Grid.Row="2">
      <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
      <TextBlock x:Name="ElapsedText" Text="0:00" Foreground="#8586A8" FontSize="10" VerticalAlignment="Center"/>
-     <Slider x:Name="SeekSlider" Grid.Column="1" Minimum="0" Maximum="100" Value="0" Margin="12,0" VerticalAlignment="Center" ValueChanged="SeekSlider_ValueChanged"/>
+     <Slider x:Name="SeekSlider" Grid.Column="1" Minimum="0" Maximum="100" Value="0" Margin="12,0" VerticalAlignment="Center" ValueChanged="SeekSlider_ValueChanged" PreviewMouseLeftButtonDown="SeekSlider_MouseDown" PreviewMouseLeftButtonUp="SeekSlider_MouseUp"/>
      <TextBlock x:Name="DurationText" Grid.Column="2" Text="0:00" Foreground="#8586A8" FontSize="10" VerticalAlignment="Center"/>
     </Grid>
    </Grid>
