@@ -98,9 +98,22 @@ public partial class MainWindow : Window
 
     private void AddIndividualFiles(IEnumerable<string> paths)
     {
-        foreach (var group in paths.Where(File.Exists).Where(IsAudioFile)
-                     .GroupBy(p => System.IO.Path.GetDirectoryName(System.IO.Path.GetFullPath(p)) ?? ""))
+        var selectedPaths = paths.Where(File.Exists).Where(IsAudioFile)
+            .Select(System.IO.Path.GetFullPath).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+
+        foreach (var group in selectedPaths
+                     .GroupBy(p => System.IO.Path.GetDirectoryName(p) ?? ""))
             AddFilesToFolder(group, group.Key);
+
+        // Files added together form one playback queue, even when they came from
+        // different directories. Selecting a folder later switches back to that folder.
+        activeTracks = selectedPaths
+            .Select(path => allTracks.FirstOrDefault(t =>
+                string.Equals(t.Path, path, StringComparison.OrdinalIgnoreCase)))
+            .Where(track => track != null)
+            .Cast<Track>()
+            .ToList();
+        currentIndex = -1;
     }
 
     private void UpdateQueueCount() =>
@@ -141,22 +154,19 @@ public partial class MainWindow : Window
     private void Window_Drop(object sender, DragEventArgs e)
     {
         if (e.Data.GetData(DataFormats.FileDrop) is not string[] dropped) return;
-        foreach (var item in dropped)
+        AddIndividualFiles(dropped.Where(File.Exists));
+
+        foreach (var item in dropped.Where(Directory.Exists))
         {
-            if (File.Exists(item))
-                AddIndividualFiles([item]);
-            else if (Directory.Exists(item))
+            try
             {
-                try
-                {
-                    var files = Directory.EnumerateFiles(item, "*.*", SearchOption.AllDirectories).ToList();
-                    AddFilesToFolder(files, item, System.IO.Path.GetFileName(item.TrimEnd(System.IO.Path.DirectorySeparatorChar)));
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Could not fully scan {item}.\n\n{ex.Message}", "NEONWAVE folder import",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
+                var files = Directory.EnumerateFiles(item, "*.*", SearchOption.AllDirectories).ToList();
+                AddFilesToFolder(files, item, System.IO.Path.GetFileName(item.TrimEnd(System.IO.Path.DirectorySeparatorChar)));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Could not fully scan {item}.\n\n{ex.Message}", "NEONWAVE folder import",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
     }
