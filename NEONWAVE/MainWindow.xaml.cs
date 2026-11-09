@@ -148,7 +148,14 @@ public partial class MainWindow : Window
     {
         if (!changingSeek && reader != null && draggingSeek) reader.CurrentTime = TimeSpan.FromSeconds(reader.TotalTime.TotalSeconds * SeekSlider.Value / 100);
     }
-    private void SeekSlider_MouseDown(object sender, MouseButtonEventArgs e) => draggingSeek = true;\n    private void SeekSlider_MouseUp(object sender, MouseButtonEventArgs e)\n    {\n        if (reader != null) reader.CurrentTime = TimeSpan.FromSeconds(reader.TotalTime.TotalSeconds * SeekSlider.Value / 100);\n        draggingSeek = false;\n    }\n    private void EqSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) => ApplyEq();\n\n    private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    private void SeekSlider_MouseDown(object sender, MouseButtonEventArgs e) => draggingSeek = true;
+    private void SeekSlider_MouseUp(object sender, MouseButtonEventArgs e)
+    {
+        if (reader != null) reader.CurrentTime = TimeSpan.FromSeconds(reader.TotalTime.TotalSeconds * SeekSlider.Value / 100);
+        draggingSeek = false;
+    }
+    private void EqSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) => ApplyEq();
+\n    private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         if (VolumeText != null) VolumeText.Text = $"{(int)VolumeSlider.Value}%";
         if (reader != null) reader.Volume = (float)(VolumeSlider.Value / 100);
