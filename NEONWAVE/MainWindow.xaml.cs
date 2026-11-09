@@ -29,6 +29,7 @@ public partial class MainWindow : Window
     private bool changingSeek;
     private bool draggingSeek;
     private int currentIndex = -1;
+    private bool advanceQueued;
 
     private static readonly string[] SupportedExtensions =
         [".mp3", ".wav", ".aiff", ".aif", ".wma", ".aac", ".m4a", ".flac"];
@@ -174,6 +175,7 @@ public partial class MainWindow : Window
 
         try
         {
+            advanceQueued = false;
             DisposeAudio();
             currentIndex = index;
             Playlist.SelectedIndex = index;
@@ -188,16 +190,21 @@ public partial class MainWindow : Window
             playbackOutput.Init(playbackReader);
             playbackOutput.PlaybackStopped += (_, args) =>
             {
-                if (args.Exception != null || playbackReader.Position < playbackReader.Length - 1)
-                    return;
+                // Never inspect the reader on the audio callback thread: it may already
+                // have been disposed because the user skipped, stopped, or closed the app.
+                if (args.Exception != null) return;
 
                 Dispatcher.BeginInvoke(() =>
                 {
-                    // Ignore delayed stop events from an old track or a manual stop.
-                    if (ReferenceEquals(output, playbackOutput) &&
-                        ReferenceEquals(reader, playbackReader) &&
-                        playbackReader.Position >= playbackReader.Length - 1)
+                    // Check identity before touching the reader. A delayed callback from
+                    // a disposed output must be ignored.
+                    if (!ReferenceEquals(output, playbackOutput) ||
+                        !ReferenceEquals(reader, playbackReader))
+                        return;
+
+                    if (!advanceQueued && playbackReader.Position >= playbackReader.Length - 1)
                     {
+                        advanceQueued = true;
                         NextTrack();
                     }
                 });
