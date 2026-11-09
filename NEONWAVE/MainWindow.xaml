@@ -14,7 +14,7 @@
     <Grid Background="#101222" Width="13">
      <Border Margin="3,2" CornerRadius="5" Background="#1D2036" BorderBrush="#353957" BorderThickness="1"/>
      <Track x:Name="PART_Track" IsDirectionReversed="True">
-      <Track.Thumb><Thumb><Thumb.Template><ControlTemplate TargetType="Thumb"><Border Margin="1,1" CornerRadius="5" Background="#36F5FF" BorderBrush="#B5FFFF" BorderThickness="1"><Border.Effect><DropShadowEffect Color="#36F5FF" BlurRadius="8" ShadowDepth="0" Opacity="0.75"/></Border.Effect><Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,0"><GradientStop Color="#FF4BD8" Offset="0"/><GradientStop Color="#7D5BFF" Offset="0.48"/><GradientStop Color="#36F5FF" Offset="1"/></LinearGradientBrush></Border.Background></Border></ControlTemplate></Thumb.Template></Thumb></Track.Thumb>
+      <Track.Thumb><Thumb><Thumb.Template><ControlTemplate TargetType="Thumb"><Border Margin="1,1" CornerRadius="5" BorderBrush="#B5FFFF" BorderThickness="1"><Border.Effect><DropShadowEffect Color="#36F5FF" BlurRadius="8" ShadowDepth="0" Opacity="0.75"/></Border.Effect><Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,0"><GradientStop Color="#FF4BD8" Offset="0"/><GradientStop Color="#7D5BFF" Offset="0.48"/><GradientStop Color="#36F5FF" Offset="1"/></LinearGradientBrush></Border.Background></Border></ControlTemplate></Thumb.Template></Thumb></Track.Thumb>
      </Track>
     </Grid>
    </ControlTemplate></Setter.Value></Setter>
