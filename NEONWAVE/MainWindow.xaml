@@ -35,12 +35,31 @@
     <TextBlock Text="N E O N W A V E" FontSize="27" FontWeight="Bold" Foreground="#36F5FF"/>
     <TextBlock Text="S Y N T H W A V E   A U D I O   S Y S T E M" FontSize="10" Foreground="#8586A8" Margin="2,4,0,0"/>
    </StackPanel>
-   <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="18,0,8,0">
-    <Button Content="+ ADD FILES" Click="Add_Click" FontSize="10" Foreground="#36F5FF"/>
-    <Button Content="ADD FOLDER" Click="AddFolder_Click" FontSize="10"/>
-    <Button Content="REMOVE" Click="Remove_Click" FontSize="10"/>
-    <Button Content="CLEAR" Click="Clear_Click" FontSize="10"/>
-   </StackPanel>
+   <Border Grid.Column="1" Width="62" Height="62" CornerRadius="31" HorizontalAlignment="Center" VerticalAlignment="Center"
+           BorderThickness="2" BorderBrush="#FF4BD8" Background="#17132D">
+    <Border.Effect>
+     <DropShadowEffect Color="#FF32D2" BlurRadius="24" ShadowDepth="0" Opacity="0.9"/>
+    </Border.Effect>
+    <Border CornerRadius="29" Margin="3" BorderThickness="1" BorderBrush="#54F7FF">
+     <Border.Background>
+      <RadialGradientBrush>
+       <GradientStop Color="#4B1F68" Offset="0"/>
+       <GradientStop Color="#201A49" Offset="0.58"/>
+       <GradientStop Color="#10172C" Offset="1"/>
+      </RadialGradientBrush>
+     </Border.Background>
+     <Border.Effect>
+      <DropShadowEffect Color="#36F5FF" BlurRadius="15" ShadowDepth="0" Opacity="0.75"/>
+     </Border.Effect>
+     <Viewbox Margin="8">
+      <TextBlock Text="♫" FontFamily="Segoe UI Symbol" FontWeight="Bold" Foreground="#FFFFFF">
+       <TextBlock.Effect>
+        <DropShadowEffect Color="#36F5FF" BlurRadius="13" ShadowDepth="0" Opacity="1"/>
+       </TextBlock.Effect>
+      </TextBlock>
+     </Viewbox>
+    </Border>
+   </Border>
    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
     <TextBlock Text="●" Foreground="#FF3BC8" FontSize="12" VerticalAlignment="Center"/>
     <TextBlock Text="  AUDIO CORE ONLINE" Foreground="#A7A8C5" FontSize="10" VerticalAlignment="Center"/>
@@ -75,6 +94,8 @@
      <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
       <Button Content="+ ADD FILES" Click="Add_Click" FontSize="10"/>
       <Button Content="ADD FOLDER" Click="AddFolder_Click" FontSize="10"/>
+      <Button Content="REMOVE" Click="Remove_Click" FontSize="10"/>
+      <Button Content="CLEAR" Click="Clear_Click" FontSize="10"/>
       <Button Content="SAVE" Click="SavePlaylist_Click" FontSize="10"/>
       <Button Content="LOAD" Click="LoadPlaylist_Click" FontSize="10"/>
      </StackPanel>
