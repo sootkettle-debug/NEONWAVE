@@ -20,10 +20,20 @@ public sealed class Track
     public override string ToString() => DisplayName;
 }
 
+public sealed class MusicFolder
+{
+    public string Name { get; set; } = "";
+    public string Path { get; set; } = "";
+    public ObservableCollection<Track> Tracks { get; } = new();
+    public override string ToString() => Name;
+}
+
 public partial class MainWindow : Window
 {
-    private readonly ObservableCollection<Track> tracks = new();
+    private readonly ObservableCollection<MusicFolder> folders = new();
+    private readonly List<Track> allTracks = new();
     private readonly DispatcherTimer timer = new() { Interval = TimeSpan.FromMilliseconds(200) };
+    private List<Track> activeTracks = new();
     private AudioFileReader? reader;
     private WaveOutEvent? output;
     private bool changingSeek;
@@ -37,27 +47,64 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        Playlist.ItemsSource = tracks;
+        FolderList.ItemsSource = folders;
         timer.Tick += (_, _) => UpdateDisplay();
         timer.Start();
         Closed += (_, _) => DisposeAudio();
     }
 
-    private void AddFiles(IEnumerable<string> paths)
+    private static bool IsAudioFile(string path) =>
+        SupportedExtensions.Contains(System.IO.Path.GetExtension(path).ToLowerInvariant());
+
+    private MusicFolder GetOrCreateFolder(string folderPath, string? displayName = null)
     {
-        foreach (var path in paths.Where(File.Exists)
-            .Where(p => SupportedExtensions.Contains(System.IO.Path.GetExtension(p).ToLowerInvariant())))
+        var normalized = System.IO.Path.GetFullPath(folderPath);
+        var existing = folders.FirstOrDefault(f =>
+            string.Equals(f.Path, normalized, StringComparison.OrdinalIgnoreCase));
+        if (existing != null) return existing;
+
+        var folder = new MusicFolder
         {
-            if (!tracks.Any(t => string.Equals(t.Path, path, StringComparison.OrdinalIgnoreCase)))
-                tracks.Add(new Track { Path = path });
+            Path = normalized,
+            Name = displayName ?? System.IO.Path.GetFileName(normalized.TrimEnd(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar))
+        };
+        if (string.IsNullOrWhiteSpace(folder.Name)) folder.Name = normalized;
+        folders.Add(folder);
+        return folder;
+    }
+
+    private void AddFilesToFolder(IEnumerable<string> paths, string folderPath, string? displayName = null)
+    {
+        var folder = GetOrCreateFolder(folderPath, displayName);
+        foreach (var path in paths.Where(File.Exists).Where(IsAudioFile))
+        {
+            if (allTracks.Any(t => string.Equals(t.Path, path, StringComparison.OrdinalIgnoreCase)))
+                continue;
+            var track = new Track { Path = System.IO.Path.GetFullPath(path) };
+            folder.Tracks.Add(track);
+            allTracks.Add(track);
         }
 
+        if (folder.Tracks.Count == 0)
+        {
+            folders.Remove(folder);
+            return;
+        }
+
+        FolderList.SelectedItem = folder;
+        ShowFolder(folder);
         UpdateQueueCount();
-        if (currentIndex < 0 && tracks.Count > 0) Playlist.SelectedIndex = 0;
+    }
+
+    private void AddIndividualFiles(IEnumerable<string> paths)
+    {
+        foreach (var group in paths.Where(File.Exists).Where(IsAudioFile)
+                     .GroupBy(p => System.IO.Path.GetDirectoryName(System.IO.Path.GetFullPath(p)) ?? ""))
+            AddFilesToFolder(group, group.Key);
     }
 
     private void UpdateQueueCount() =>
-        QueueCount.Text = $"{tracks.Count} TRACKS  •  NEONWAVE QUEUE";
+        QueueCount.Text = $"{allTracks.Count} TRACKS  •  {folders.Count} FOLDERS";
 
     private void Add_Click(object sender, RoutedEventArgs e)
     {
@@ -67,23 +114,18 @@ public partial class MainWindow : Window
             Filter = "Audio files|*.mp3;*.wav;*.aiff;*.aif;*.wma;*.aac;*.m4a;*.flac|All files|*.*",
             Multiselect = true
         };
-        if (dialog.ShowDialog() == true) AddFiles(dialog.FileNames);
+        if (dialog.ShowDialog() == true) AddIndividualFiles(dialog.FileNames);
     }
 
     private void AddFolder_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFolderDialog
-        {
-            Title = "Choose a music folder",
-            Multiselect = false
-        };
-
+        var dialog = new OpenFolderDialog { Title = "Choose a music folder", Multiselect = false };
         if (dialog.ShowDialog() != true) return;
 
         try
         {
-            var files = Directory.EnumerateFiles(dialog.FolderName, "*.*", SearchOption.AllDirectories);
-            AddFiles(files);
+            var files = Directory.EnumerateFiles(dialog.FolderName, "*.*", SearchOption.AllDirectories).ToList();
+            AddFilesToFolder(files, dialog.FolderName, System.IO.Path.GetFileName(dialog.FolderName.TrimEnd(System.IO.Path.DirectorySeparatorChar)));
             TrackInfo.Text = $"Imported audio from {dialog.FolderName}";
         }
         catch (Exception ex)
@@ -99,14 +141,17 @@ public partial class MainWindow : Window
     private void Window_Drop(object sender, DragEventArgs e)
     {
         if (e.Data.GetData(DataFormats.FileDrop) is not string[] dropped) return;
-
-        var files = new List<string>();
         foreach (var item in dropped)
         {
-            if (File.Exists(item)) files.Add(item);
+            if (File.Exists(item))
+                AddIndividualFiles([item]);
             else if (Directory.Exists(item))
             {
-                try { files.AddRange(Directory.EnumerateFiles(item, "*.*", SearchOption.AllDirectories)); }
+                try
+                {
+                    var files = Directory.EnumerateFiles(item, "*.*", SearchOption.AllDirectories).ToList();
+                    AddFilesToFolder(files, item, System.IO.Path.GetFileName(item.TrimEnd(System.IO.Path.DirectorySeparatorChar)));
+                }
                 catch (Exception ex)
                 {
                     MessageBox.Show($"Could not fully scan {item}.\n\n{ex.Message}", "NEONWAVE folder import",
@@ -114,17 +159,29 @@ public partial class MainWindow : Window
                 }
             }
         }
-        AddFiles(files);
     }
 
-    private void Playlist_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void FolderList_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (Playlist.SelectedIndex >= 0) currentIndex = Playlist.SelectedIndex;
+        if (FolderList.SelectedItem is MusicFolder folder)
+            ShowFolder(folder);
     }
 
-    private void Playlist_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    private void ShowFolder(MusicFolder folder)
     {
-        if (Playlist.SelectedIndex >= 0) PlayIndex(Playlist.SelectedIndex);
+        FolderTracks.ItemsSource = folder.Tracks;
+        FolderContentsTitle.Text = $"TRACKS  •  {folder.Name.ToUpperInvariant()}";
+        activeTracks = folder.Tracks.ToList();
+        currentIndex = -1;
+        FolderTracks.SelectedIndex = -1;
+    }
+
+    private void FolderTracks_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (FolderTracks.SelectedItem is not Track track) return;
+        activeTracks = (FolderTracks.ItemsSource as ObservableCollection<Track>)?.ToList() ?? activeTracks;
+        var index = activeTracks.IndexOf(track);
+        if (index >= 0) PlayIndex(index);
     }
 
     private void Play_Click(object sender, RoutedEventArgs e)
@@ -141,7 +198,7 @@ public partial class MainWindow : Window
             SetLogoPulse(true);
             PlayButton.Content = "Ⅱ";
         }
-        else if (tracks.Count > 0)
+        else if (activeTracks.Count > 0)
         {
             PlayIndex(currentIndex < 0 ? 0 : currentIndex);
         }
@@ -150,14 +207,14 @@ public partial class MainWindow : Window
     private void Previous_Click(object sender, RoutedEventArgs e)
     {
         if (reader != null && reader.CurrentTime.TotalSeconds > 3) reader.CurrentTime = TimeSpan.Zero;
-        else if (tracks.Count > 0) PlayIndex((Math.Max(0, currentIndex - 1) + tracks.Count) % tracks.Count);
+        else if (activeTracks.Count > 0) PlayIndex((Math.Max(0, currentIndex - 1) + activeTracks.Count) % activeTracks.Count);
     }
 
     private void Next_Click(object sender, RoutedEventArgs e) => NextTrack();
 
     private void NextTrack()
     {
-        if (tracks.Count > 0) PlayIndex((currentIndex + 1) % tracks.Count);
+        if (activeTracks.Count > 0) PlayIndex((currentIndex + 1) % activeTracks.Count);
     }
 
     private void Stop_Click(object sender, RoutedEventArgs e)
@@ -171,18 +228,15 @@ public partial class MainWindow : Window
 
     private void PlayIndex(int index)
     {
-        if (index < 0 || index >= tracks.Count) return;
-
+        if (index < 0 || index >= activeTracks.Count) return;
         try
         {
             advanceQueued = false;
             DisposeAudio();
             currentIndex = index;
-            Playlist.SelectedIndex = index;
-            reader = new AudioFileReader(tracks[index].Path)
-            {
-                Volume = (float)(VolumeSlider.Value / 100.0)
-            };
+            var track = activeTracks[index];
+            FolderTracks.SelectedItem = track;
+            reader = new AudioFileReader(track.Path) { Volume = (float)(VolumeSlider.Value / 100.0) };
 
             var playbackReader = reader;
             var playbackOutput = new WaveOutEvent();
@@ -190,18 +244,11 @@ public partial class MainWindow : Window
             playbackOutput.Init(playbackReader);
             playbackOutput.PlaybackStopped += (_, args) =>
             {
-                // Never inspect the reader on the audio callback thread: it may already
-                // have been disposed because the user skipped, stopped, or closed the app.
                 if (args.Exception != null) return;
-
                 Dispatcher.BeginInvoke(() =>
                 {
-                    // Check identity before touching the reader. A delayed callback from
-                    // a disposed output must be ignored.
                     if (!ReferenceEquals(output, playbackOutput) ||
-                        !ReferenceEquals(reader, playbackReader))
-                        return;
-
+                        !ReferenceEquals(reader, playbackReader)) return;
                     if (!advanceQueued && playbackReader.Position >= playbackReader.Length - 1)
                     {
                         advanceQueued = true;
@@ -212,8 +259,8 @@ public partial class MainWindow : Window
             playbackOutput.Play();
             SetLogoPulse(true);
             PlayButton.Content = "Ⅱ";
-            TrackTitle.Text = tracks[index].DisplayName;
-            TrackInfo.Text = tracks[index].Path;
+            TrackTitle.Text = track.DisplayName;
+            TrackInfo.Text = track.Path;
             changingSeek = true;
             SeekSlider.Value = 0;
             changingSeek = false;
@@ -228,7 +275,6 @@ public partial class MainWindow : Window
     private void SetLogoPulse(bool isPlaying)
     {
         if (LogoGlow == null) return;
-
         if (LogoGlow.Effect is not DropShadowEffect glow)
         {
             glow = new DropShadowEffect { ShadowDepth = 0, Opacity = 0.9 };
@@ -238,22 +284,11 @@ public partial class MainWindow : Window
         if (isPlaying)
         {
             var pulse = new DoubleAnimation(0.72, 1.0, TimeSpan.FromSeconds(0.85))
-            {
-                AutoReverse = true,
-                RepeatBehavior = RepeatBehavior.Forever
-            };
+                { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever };
             var glowPulse = new DoubleAnimation(16, 34, TimeSpan.FromSeconds(0.85))
-            {
-                AutoReverse = true,
-                RepeatBehavior = RepeatBehavior.Forever
-            };
+                { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever };
             var colorPulse = new ColorAnimation(Color.FromRgb(255, 59, 200), Color.FromRgb(54, 245, 255),
-                TimeSpan.FromSeconds(1.1))
-            {
-                AutoReverse = true,
-                RepeatBehavior = RepeatBehavior.Forever
-            };
-
+                TimeSpan.FromSeconds(1.1)) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever };
             LogoGlow.BeginAnimation(UIElement.OpacityProperty, pulse);
             glow.BeginAnimation(DropShadowEffect.BlurRadiusProperty, glowPulse);
             glow.BeginAnimation(DropShadowEffect.ColorProperty, colorPulse);
@@ -272,7 +307,6 @@ public partial class MainWindow : Window
     private void DisposeAudio()
     {
         SetLogoPulse(false);
-
         if (output != null)
         {
             var oldOutput = output;
@@ -280,7 +314,6 @@ public partial class MainWindow : Window
             oldOutput.Stop();
             oldOutput.Dispose();
         }
-
         reader?.Dispose();
         reader = null;
     }
@@ -288,10 +321,8 @@ public partial class MainWindow : Window
     private void UpdateDisplay()
     {
         if (reader == null) return;
-
         ElapsedText.Text = FormatTime(reader.CurrentTime);
         DurationText.Text = FormatTime(reader.TotalTime);
-
         if (!draggingSeek && reader.TotalTime.TotalSeconds > 0)
         {
             changingSeek = true;
@@ -300,8 +331,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private static string FormatTime(TimeSpan time) =>
-        $"{(int)time.TotalMinutes}:{time.Seconds:00}";
+    private static string FormatTime(TimeSpan time) => $"{(int)time.TotalMinutes}:{time.Seconds:00}";
 
     private void SeekSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
@@ -326,36 +356,38 @@ public partial class MainWindow : Window
 
     private void Remove_Click(object sender, RoutedEventArgs e)
     {
-        int index = Playlist.SelectedIndex;
-        if (index < 0) return;
-
-        bool removingCurrent = index == currentIndex && output != null;
-        if (removingCurrent)
+        if (FolderTracks.SelectedItem is not Track selected) return;
+        if (reader != null && currentIndex >= 0 && currentIndex < activeTracks.Count &&
+            ReferenceEquals(activeTracks[currentIndex], selected))
         {
             DisposeAudio();
             PlayButton.Content = "▶";
             TrackTitle.Text = "No track loaded";
         }
 
-        tracks.RemoveAt(index);
-        if (tracks.Count == 0) currentIndex = -1;
-        else
-        {
-            currentIndex = Math.Min(index, tracks.Count - 1);
-            Playlist.SelectedIndex = currentIndex;
-        }
+        var folder = folders.FirstOrDefault(f => f.Tracks.Contains(selected));
+        folder?.Tracks.Remove(selected);
+        allTracks.Remove(selected);
+        if (folder != null && folder.Tracks.Count == 0) folders.Remove(folder);
+        if (folder != null && folders.Contains(folder)) ShowFolder(folder);
+        else if (folders.Count > 0) FolderList.SelectedIndex = 0;
+        else { FolderTracks.ItemsSource = null; activeTracks.Clear(); currentIndex = -1; }
         UpdateQueueCount();
     }
 
     private void Clear_Click(object sender, RoutedEventArgs e)
     {
         DisposeAudio();
-        tracks.Clear();
+        folders.Clear();
+        allTracks.Clear();
+        activeTracks.Clear();
         currentIndex = -1;
-        Playlist.SelectedIndex = -1;
+        FolderTracks.ItemsSource = null;
+        FolderContentsTitle.Text = "TRACKS IN SELECTED FOLDER";
+        FolderList.SelectedIndex = -1;
         TrackTitle.Text = "No track loaded";
         TrackInfo.Text = "Add an audio folder or drop music files here";
-        QueueCount.Text = "0 TRACKS  •  DROP FILES OR FOLDERS TO ADD";
+        QueueCount.Text = "0 TRACKS  •  ADD A FOLDER TO BEGIN";
         PlayButton.Content = "▶";
         changingSeek = true;
         SeekSlider.Value = 0;
@@ -366,29 +398,22 @@ public partial class MainWindow : Window
 
     private void SavePlaylist_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new SaveFileDialog
-        {
-            Filter = "NEONWAVE playlist|*.nwv.json",
-            FileName = "My Playlist.nwv.json"
-        };
+        var dialog = new SaveFileDialog { Filter = "NEONWAVE playlist|*.nwv.json", FileName = "My Playlist.nwv.json" };
         if (dialog.ShowDialog() == true)
-            File.WriteAllText(dialog.FileName,
-                JsonSerializer.Serialize(tracks.Select(t => t.Path), new JsonSerializerOptions { WriteIndented = true }));
+            File.WriteAllText(dialog.FileName, JsonSerializer.Serialize(allTracks.Select(t => t.Path),
+                new JsonSerializerOptions { WriteIndented = true }));
     }
 
     private void LoadPlaylist_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new OpenFileDialog { Filter = "NEONWAVE playlist|*.nwv.json;*.json" };
         if (dialog.ShowDialog() != true) return;
-
         try
         {
-            AddFiles(JsonSerializer.Deserialize<string[]>(File.ReadAllText(dialog.FileName)) ?? []);
+            var paths = JsonSerializer.Deserialize<string[]>(File.ReadAllText(dialog.FileName)) ?? [];
+            AddIndividualFiles(paths);
         }
-        catch (Exception ex)
-        {
-            MessageBox.Show(ex.Message, "Playlist error");
-        }
+        catch (Exception ex) { MessageBox.Show(ex.Message, "Playlist error"); }
     }
 
     private void Window_KeyDown(object sender, KeyEventArgs e)
