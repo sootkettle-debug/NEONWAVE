@@ -57,7 +57,29 @@
     </DockPanel>
     <Grid Grid.Row="1"><Grid.ColumnDefinitions><ColumnDefinition Width="0.85*"/><ColumnDefinition Width="1.5*"/></Grid.ColumnDefinitions>
      <Border Grid.Column="0" Background="#0D1020" BorderBrush="#34304F" BorderThickness="1" CornerRadius="8" Margin="0,0,8,0" Padding="6">
-      <DockPanel><TextBlock DockPanel.Dock="Top" Text="FOLDERS" Foreground="#FF70D8" FontSize="10" FontWeight="Bold" Margin="7,5,4,8"/><ListBox x:Name="FolderList" SelectionChanged="FolderList_SelectionChanged" DisplayMemberPath="Name"/></DockPanel>
+      <DockPanel><TextBlock DockPanel.Dock="Top" Text="FOLDERS" Foreground="#FF70D8" FontSize="10" FontWeight="Bold" Margin="7,5,4,8"/><ListBox x:Name="FolderList" SelectionChanged="FolderList_SelectionChanged" DisplayMemberPath="Name">
+       <ListBox.ItemContainerStyle>
+        <Style TargetType="ListBoxItem">
+         <Setter Property="Foreground" Value="#36F5FF"/>
+         <Setter Property="Background" Value="#10182A"/>
+         <Setter Property="BorderBrush" Value="#183B55"/>
+         <Setter Property="BorderThickness" Value="1"/>
+         <Setter Property="Padding" Value="10,9"/>
+         <Setter Property="Margin" Value="0,2"/>
+         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+         <Style.Triggers>
+          <Trigger Property="IsSelected" Value="True">
+           <Setter Property="Foreground" Value="#FF4BD8"/>
+           <Setter Property="Background" Value="#29152F"/>
+           <Setter Property="BorderBrush" Value="#FF3BC8"/>
+           <Setter Property="Effect">
+            <Setter.Value><DropShadowEffect Color="#FF3BC8" BlurRadius="12" ShadowDepth="0" Opacity="0.65"/></Setter.Value>
+           </Setter>
+          </Trigger>
+         </Style.Triggers>
+        </Style>
+       </ListBox.ItemContainerStyle>
+      </ListBox></DockPanel>
      </Border>
      <Border Grid.Column="1" Background="#0D1020" BorderBrush="#34304F" BorderThickness="1" CornerRadius="8" Margin="8,0,0,0" Padding="6">
       <DockPanel><TextBlock DockPanel.Dock="Top" x:Name="FolderContentsTitle" Text="TRACKS IN SELECTED FOLDER" Foreground="#36F5FF" FontSize="10" FontWeight="Bold" Margin="7,5,4,8"/><ListBox x:Name="FolderTracks" MouseDoubleClick="FolderTracks_MouseDoubleClick" DisplayMemberPath="DisplayName"/></DockPanel>
