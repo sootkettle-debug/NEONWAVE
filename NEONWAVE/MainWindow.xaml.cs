@@ -1,3 +1,4 @@
+using NAudio.Dsp;
 using Microsoft.Win32;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
