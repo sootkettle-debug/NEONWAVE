@@ -1,7 +1,7 @@
 <Window x:Class="NEONWAVE.MainWindow"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
- Title="NEONWAVE" Width="1040" Height="720" MinWidth="680" MinHeight="560"
+ Title="NEONWAVE" Icon="app.ico" Width="1040" Height="720" MinWidth="680" MinHeight="560"
  Background="#090914" Foreground="#F4F5FF" WindowStartupLocation="CenterScreen"
  AllowDrop="True" Drop="Window_Drop" DragOver="Window_DragOver"
  KeyDown="Window_KeyDown">
