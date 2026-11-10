@@ -64,5 +64,5 @@ im = Image.alpha_composite(im, waves)
 OUT.parent.mkdir(parents=True, exist_ok=True)
 sizes = [16, 24, 32, 48, 64, 128, 256]
 images = {n: im.resize((n, n), Image.Resampling.LANCZOS) for n in sizes}
-images[256].save(OUT, format="ICO", sizes=sizes)
+images[256].save(OUT, format="ICO", sizes=[(n, n) for n in sizes])
 print(f"Created multi-resolution icon: {OUT}")
