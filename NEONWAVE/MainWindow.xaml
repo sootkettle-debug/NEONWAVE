@@ -63,7 +63,7 @@
    <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
     <DockPanel Margin="0,0,0,10">
      <TextBlock Text="MUSIC LIBRARY" FontWeight="Bold" FontSize="12" Foreground="#36F5FF" VerticalAlignment="Center"/>
-     <StackPanel Orientation="Horizontal" DockPanel.Dock="Right"><Button Content="+ ADD FILES" Click="Add_Click" FontSize="10" Width="78"/><Button Content="ADD FOLDER" Click="AddFolder_Click" FontSize="10" Width="78"/><Button Content="REMOVE" Click="Remove_Click" FontSize="10" Width="78"/><Button Content="CLEAR" Click="Clear_Click" FontSize="10" Width="78"/><Button Content="SAVE" Click="SavePlaylist_Click" FontSize="10" Width="78"/><Button Content="LOAD" Click="LoadPlaylist_Click" FontSize="10" Width="78"/></StackPanel>
+     <StackPanel Orientation="Horizontal" DockPanel.Dock="Right"><Button Content="+ ADD FILES" Click="Add_Click" FontSize="10" Width="78" Padding="4,7" HorizontalContentAlignment="Left"/><Button Content="ADD FOLDER" Click="AddFolder_Click" FontSize="10" Width="78"/><Button Content="REMOVE" Click="Remove_Click" FontSize="10" Width="78"/><Button Content="CLEAR" Click="Clear_Click" FontSize="10" Width="78"/><Button Content="SAVE" Click="SavePlaylist_Click" FontSize="10" Width="78"/><Button Content="LOAD" Click="LoadPlaylist_Click" FontSize="10" Width="78"/></StackPanel>
     </DockPanel>
     <Grid Grid.Row="1"><Grid.ColumnDefinitions><ColumnDefinition Width="0.85*"/><ColumnDefinition Width="1.5*"/></Grid.ColumnDefinitions>
      <Border Grid.Column="0" Background="#0D1020" BorderBrush="#34304F" BorderThickness="1" CornerRadius="8" Margin="0,0,8,0" Padding="6">
