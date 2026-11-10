@@ -2,12 +2,13 @@ from math import comb
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter
 
-SIZE = 1024
-SCALE = 4
-S = SIZE * SCALE
+# Draw at 8x the largest Windows icon size, then downsample once.
+ICON = 256
+SCALE = 8
+S = ICON * SCALE
 OUT = Path("NEONWAVE/app.ico")
 
-def bezier(points, steps=180):
+def bezier(points, steps=240):
     result = []
     n = len(points) - 1
     for i in range(steps + 1):
@@ -17,62 +18,75 @@ def bezier(points, steps=180):
             f = comb(n, j) * (1 - t) ** (n - j) * t ** j
             x += px * f
             y += py * f
-        result.append((int(x * SCALE), int(y * SCALE)))
+        result.append((round(x * SCALE), round(y * SCALE)))
     return result
 
-# Dark rounded tile, rendered oversized and downsampled for clean edges.
-base = Image.new("RGBA", (S, S), (7, 10, 27, 255))
-mask = Image.new("L", (S, S), 0)
-ImageDraw.Draw(mask).rounded_rectangle((18*SCALE, 18*SCALE, 1006*SCALE, 1006*SCALE), radius=210*SCALE, fill=255)
-base.putalpha(mask)
+# A bold, uncluttered silhouette stays recognizable at 32–48 px.
+base = Image.new("RGBA", (S, S), (5, 8, 24, 255))
+tile_mask = Image.new("L", (S, S), 0)
+ImageDraw.Draw(tile_mask).rounded_rectangle(
+    (8*SCALE, 8*SCALE, 248*SCALE, 248*SCALE),
+    radius=48*SCALE, fill=255
+)
+base.putalpha(tile_mask)
 
-# Subtle blue-violet ambient glow behind the wave.
+crest = bezier([
+    (35, 151), (67, 145), (76, 76), (116, 73),
+    (158, 69), (168, 132), (220, 122)
+])
+
+# Soft cyan aura, kept inside the tile.
 glow = Image.new("RGBA", (S, S), (0, 0, 0, 0))
-gd = ImageDraw.Draw(glow)
-crest = bezier([(145, 620), (275, 580), (340, 310), (505, 300), (655, 285), (710, 510), (875, 490)])
-gd.line(crest, fill=(0, 210, 255, 185), width=94*SCALE, joint="curve")
-glow = glow.filter(ImageFilter.GaussianBlur(58*SCALE))
+ImageDraw.Draw(glow).line(crest, fill=(0, 205, 255, 190),
+                          width=34*SCALE, joint="curve")
+glow = glow.filter(ImageFilter.GaussianBlur(17*SCALE))
 base = Image.alpha_composite(base, glow)
 
-# Main wave stroke with a cyan -> violet -> magenta gradient.
-wave_mask = Image.new("L", (S, S), 0)
-ImageDraw.Draw(wave_mask).line(crest, fill=255, width=54*SCALE, joint="curve")
-gradient = Image.new("RGBA", (S, S), (0, 0, 0, 0))
-gp = gradient.load()
-stops = [(0.0, (0, 238, 255)), (0.48, (100, 125, 255)), (1.0, (255, 45, 190))]
-for y in range(S):
-    t = y / (S - 1)
-    for x in range(S):
-        # Gradient follows the diagonal movement of the crest.
-        u = max(0.0, min(1.0, 0.58 * (x / (S - 1)) + 0.42 * (1 - t)))
-        for k in range(len(stops) - 1):
-            if stops[k][0] <= u <= stops[k+1][0]:
-                a, ca = stops[k]
-                b, cb = stops[k+1]
-                q = (u-a)/(b-a)
-                color = tuple(round(ca[c]*(1-q)+cb[c]*q) for c in range(3))
-                gp[x, y] = (*color, 255)
-                break
-gradient.putalpha(wave_mask)
-base = Image.alpha_composite(base, gradient)
+# Build a horizontal neon gradient, then mask it to the thick wave stroke.
+grad = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+pixels = grad.load()
+stops = [(0.0, (0, 238, 255)), (0.52, (104, 112, 255)), (1.0, (255, 48, 190))]
+for x in range(S):
+    u = x / (S - 1)
+    for i in range(len(stops) - 1):
+        if stops[i][0] <= u <= stops[i + 1][0]:
+            a, ca = stops[i]
+            b, cb = stops[i + 1]
+            q = (u - a) / (b - a)
+            color = tuple(round(ca[c] * (1-q) + cb[c] * q) for c in range(3))
+            for y in range(S):
+                pixels[x, y] = (*color, 255)
+            break
 
-# Bright inner highlight gives the crest a crisp, glassy edge.
-highlight = bezier([(160, 590), (285, 550), (355, 350), (500, 340), (645, 325), (720, 470), (850, 455)])
-hi = Image.new("RGBA", (S, S), (0, 0, 0, 0))
-ImageDraw.Draw(hi).line(highlight, fill=(225, 255, 255, 230), width=9*SCALE, joint="curve")
-base = Image.alpha_composite(base, hi)
+stroke_mask = Image.new("L", (S, S), 0)
+ImageDraw.Draw(stroke_mask).line(crest, fill=255, width=24*SCALE, joint="curve")
+grad.putalpha(stroke_mask)
+base = Image.alpha_composite(base, grad)
 
-# Two clean flowing under-waves.
-under = Image.new("RGBA", (S, S), (0, 0, 0, 0))
-ud = ImageDraw.Draw(under)
-p1 = bezier([(205, 690), (360, 770), (560, 765), (805, 655)])
-p2 = bezier([(290, 795), (455, 850), (630, 820), (760, 755)])
-ud.line(p1, fill=(0, 218, 255, 245), width=20*SCALE, joint="curve")
-ud.line(p2, fill=(225, 55, 210, 220), width=14*SCALE, joint="curve")
-base = Image.alpha_composite(base, under)
+# A single broad, clean foam highlight; avoid tiny details that turn to noise.
+shine = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+shine_path = bezier([
+    (42, 143), (73, 135), (84, 87), (117, 84),
+    (151, 81), (169, 123), (207, 116)
+])
+ImageDraw.Draw(shine).line(shine_path, fill=(225, 255, 255, 220),
+                           width=3*SCALE, joint="curve")
+base = Image.alpha_composite(base, shine)
 
-# Export a real multi-resolution Windows icon.
-final = base.resize((256, 256), Image.Resampling.LANCZOS)
+# Two thick, widely spaced swells remain legible at small icon sizes.
+waves = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+wd = ImageDraw.Draw(waves)
+lower1 = bezier([(52, 174), (91, 198), (153, 195), (204, 166)])
+lower2 = bezier([(78, 207), (116, 222), (159, 215), (190, 197)])
+wd.line(lower1, fill=(0, 215, 255, 255), width=7*SCALE, joint="curve")
+wd.line(lower2, fill=(236, 66, 213, 245), width=6*SCALE, joint="curve")
+base = Image.alpha_composite(base, waves)
+
+# One high-quality downsample, then embed every standard Windows size.
+icon = base.resize((ICON, ICON), Image.Resampling.LANCZOS)
 OUT.parent.mkdir(parents=True, exist_ok=True)
-final.save(OUT, format="ICO", sizes=[(16,16), (24,24), (32,32), (48,48), (64,64), (128,128), (256,256)])
-print(f"Created {OUT} with seven resolutions.")
+icon.save(OUT, format="ICO", sizes=[
+    (16, 16), (24, 24), (32, 32), (48, 48),
+    (64, 64), (128, 128), (256, 256)
+])
+print(f"Created crisp multi-resolution icon: {OUT}")
