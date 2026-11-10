@@ -92,7 +92,7 @@
       </ListBox></DockPanel>
      </Border>
      <Border Grid.Column="1" Background="#0D1020" BorderBrush="#34304F" BorderThickness="1" CornerRadius="8" Margin="8,0,0,0" Padding="6">
-      <DockPanel><TextBlock DockPanel.Dock="Top" x:Name="FolderContentsTitle" Text="TRACKS IN SELECTED FOLDER" Foreground="#36F5FF" FontSize="10" FontWeight="Bold" Margin="7,5,4,8"/><ListBox x:Name="FolderTracks" MouseDoubleClick="FolderTracks_MouseDoubleClick" DisplayMemberPath="DisplayName"/></DockPanel>
+      <DockPanel><TextBlock DockPanel.Dock="Top" x:Name="FolderContentsTitle" Text="TRACKS IN SELECTED FOLDER" Foreground="#36F5FF" FontSize="10" FontWeight="Bold" Margin="7,3,4,5"/><ListBox x:Name="FolderTracks" MouseDoubleClick="FolderTracks_MouseDoubleClick" DisplayMemberPath="DisplayName" Background="Transparent" BorderThickness="0" Padding="2"><ListBox.ItemContainerStyle><Style TargetType="ListBoxItem"><Setter Property="Foreground" Value="#E9E9FA"/><Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/><Setter Property="Padding" Value="4,2"/><Setter Property="Margin" Value="0"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/></Style></ListBox.ItemContainerStyle></ListBox></DockPanel>
      </Border>
     </Grid>
     <TextBlock Grid.Row="2" x:Name="QueueCount" Text="0 TRACKS  •  ADD A FOLDER TO BEGIN" Foreground="#8586A8" FontSize="9" Margin="3,10,0,0"/>
