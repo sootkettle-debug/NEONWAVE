@@ -2,67 +2,67 @@ from math import comb
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter
 
-ICON = 256
-SCALE = 12
+ICON, SCALE = 256, 10
 S = ICON * SCALE
 OUT = Path("NEONWAVE/app.ico")
 
-def curve(points, steps=320):
-    n = len(points) - 1
-    result = []
-    for i in range(steps + 1):
-        t = i / steps
-        x = y = 0.0
-        for j, (px, py) in enumerate(points):
-            f = comb(n, j) * (1-t)**(n-j) * t**j
-            x += px*f
-            y += py*f
-        result.append((round(x*SCALE), round(y*SCALE)))
+def curve(points, steps=240):
+    n=len(points)-1
+    result=[]
+    for i in range(steps+1):
+        t=i/steps
+        x=y=0.0
+        for j,(px,py) in enumerate(points):
+            f=comb(n,j)*(1-t)**(n-j)*t**j
+            x+=px*f; y+=py*f
+        result.append((round(x*SCALE),round(y*SCALE)))
     return result
 
-im = Image.new("RGBA", (S, S), (4, 7, 22, 255))
-mask = Image.new("L", (S, S), 0)
-ImageDraw.Draw(mask).rounded_rectangle((5*SCALE, 5*SCALE, 251*SCALE, 251*SCALE),
-                                       radius=43*SCALE, fill=255)
+def neon_line(layer, points, color, width, glow_color, blur=7):
+    mask=Image.new("L",(S,S),0)
+    ImageDraw.Draw(mask).line(points,fill=255,width=width*SCALE,joint="curve")
+    glow=Image.new("RGBA",(S,S),(*glow_color,0))
+    glow.putalpha(mask.filter(ImageFilter.GaussianBlur(blur*SCALE)).point(lambda p:round(p*.8)))
+    layer.alpha_composite(glow)
+    stroke=Image.new("RGBA",(S,S),(*color,0)); stroke.putalpha(mask)
+    layer.alpha_composite(stroke)
+
+im=Image.new("RGBA",(S,S),(5,8,24,255))
+mask=Image.new("L",(S,S),0)
+ImageDraw.Draw(mask).rounded_rectangle((5*SCALE,5*SCALE,251*SCALE,251*SCALE),radius=43*SCALE,fill=255)
 im.putalpha(mask)
 
-crest = curve([(27, 151), (66, 151), (75, 77), (119, 72),
-               (165, 67), (168, 137), (229, 119)])
-stroke = Image.new("L", (S, S), 0)
-ImageDraw.Draw(stroke).line(crest, fill=255, width=38*SCALE, joint="curve")
+# Magenta neon ring
+rm=Image.new("L",(S,S),0)
+ImageDraw.Draw(rm).ellipse((24*SCALE,24*SCALE,232*SCALE,232*SCALE),outline=255,width=5*SCALE)
+rg=Image.new("RGBA",(S,S),(255,35,205,0))
+rg.putalpha(rm.filter(ImageFilter.GaussianBlur(11*SCALE)).point(lambda p:round(p*.9)))
+im.alpha_composite(rg)
+ring=Image.new("RGBA",(S,S),(0,0,0,0))
+ImageDraw.Draw(ring).ellipse((24*SCALE,24*SCALE,232*SCALE,232*SCALE),outline=(255,65,218,255),width=5*SCALE)
+im.alpha_composite(ring)
 
-glow_mask = stroke.filter(ImageFilter.GaussianBlur(17*SCALE))
-glow = Image.new("RGBA", (S, S), (0, 205, 255, 0))
-glow.putalpha(glow_mask.point(lambda p: round(p * 0.72)))
-im = Image.alpha_composite(im, glow)
+# Orange curved trunk and warm highlight
+neon_line(im,curve([(128,119),(130,150),(119,181),(111,202)]),(255,137,35),8,(255,92,18))
+neon_line(im,curve([(129,132),(129,157),(120,183),(115,194)]),(255,197,92),2,(255,154,45),3)
 
-grad = Image.new("RGBA", (S, S), (0, 0, 0, 0))
-p = grad.load()
-stops = [(0.0, (0, 245, 255)), (0.48, (80, 150, 255)), (1.0, (255, 45, 190))]
-for x in range(S):
-    u = x / (S-1)
-    for k in range(2):
-        if stops[k][0] <= u <= stops[k+1][0]:
-            a, ca = stops[k]
-            b, cb = stops[k+1]
-            q = (u-a)/(b-a)
-            c = tuple(round(ca[j]*(1-q)+cb[j]*q) for j in range(3))
-            for y in range(S):
-                p[x, y] = (*c, 255)
-            break
-grad.putalpha(stroke)
-im = Image.alpha_composite(im, grad)
+# Broad green palm fronds
+fronds=[
+ [(128,119),(100,92),(72,91),(55,105)],
+ [(128,119),(105,82),(105,61),(116,48)],
+ [(128,119),(132,80),(151,59),(169,57)],
+ [(128,119),(159,91),(188,91),(204,105)],
+ [(128,119),(158,119),(181,132),(188,149)]
+]
+for f in fronds:
+    neon_line(im,curve(f),(95,255,78),7,(46,255,74))
 
-waves = Image.new("RGBA", (S, S), (0, 0, 0, 0))
-d = ImageDraw.Draw(waves)
-d.line(curve([(43, 183), (91, 207), (157, 202), (213, 177)]),
-       fill=(0, 218, 255, 255), width=12*SCALE, joint="curve")
-d.line(curve([(77, 218), (119, 235), (171, 225), (201, 207)]),
-       fill=(244, 65, 211, 255), width=10*SCALE, joint="curve")
-im = Image.alpha_composite(im, waves)
+# Two blue water ripples beneath the palm
+neon_line(im,curve([(58,185),(87,169),(112,191),(140,185),(169,170),(198,184)]),(48,205,255),7,(20,165,255),8)
+neon_line(im,curve([(78,207),(105,197),(130,211),(155,207),(176,198)]),(38,166,255),4,(24,130,255),5)
 
-OUT.parent.mkdir(parents=True, exist_ok=True)
-sizes = [16, 24, 32, 48, 64, 128, 256]
-images = {n: im.resize((n, n), Image.Resampling.LANCZOS) for n in sizes}
-images[256].save(OUT, format="ICO", sizes=[(n, n) for n in sizes])
-print(f"Created multi-resolution icon: {OUT}")
+OUT.parent.mkdir(parents=True,exist_ok=True)
+sizes=[16,24,32,48,64,128,256]
+images={n:im.resize((n,n),Image.Resampling.LANCZOS) for n in sizes}
+images[256].save(OUT,format="ICO",sizes=[(n,n) for n in sizes])
+print(f"Created multi-resolution palm-tree icon: {OUT}")
