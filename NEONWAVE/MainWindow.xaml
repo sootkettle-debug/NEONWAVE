@@ -38,10 +38,10 @@
     <Border CornerRadius="29" Margin="3" BorderThickness="1" BorderBrush="#54F7FF">
      <Border.Background><RadialGradientBrush><GradientStop Color="#4B1F68" Offset="0"/><GradientStop Color="#201A49" Offset="0.58"/><GradientStop Color="#10172C" Offset="1"/></RadialGradientBrush></Border.Background>
      <Border.Effect><DropShadowEffect Color="#36F5FF" BlurRadius="15" ShadowDepth="0" Opacity="0.75"/></Border.Effect>
-     <Viewbox Margin="8"><Grid Width="50" Height="50">
-       <Path Data="M 4,29 C 12,26 17,21 21,13 C 25,5 34,5 42,10 C 37,10 34,13 34,17 C 34,21 39,23 45,20 C 43,27 37,30 30,28 C 24,26 18,27 12,33" StrokeThickness="3.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"><Path.Stroke><LinearGradientBrush StartPoint="0,1" EndPoint="1,0"><GradientStop Color="#36F5FF" Offset="0"/><GradientStop Color="#7D5BFF" Offset="0.48"/><GradientStop Color="#FF3BC8" Offset="1"/></LinearGradientBrush></Path.Stroke><Path.Effect><DropShadowEffect Color="#36F5FF" BlurRadius="11" ShadowDepth="0" Opacity="1"/></Path.Effect></Path>
-       <Path Data="M 7,36 C 16,31 23,31 30,35 C 36,39 42,36 46,32" Stroke="#36F5FF" StrokeThickness="2.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"><Path.Effect><DropShadowEffect Color="#FF3BC8" BlurRadius="8" ShadowDepth="0" Opacity="0.9"/></Path.Effect></Path>
-       <Path Data="M 34,7 C 38,6 42,8 45,11" Stroke="#FFFFFF" StrokeThickness="1.5" StrokeStartLineCap="Round" Opacity="0.9"/>
+     <Viewbox Margin="7"><Grid Width="50" Height="50">
+       <Path Data="M 25,25 C 24,30 23,35 22,40 C 21,42 21,43 20,44" Stroke="#FF8A24" StrokeThickness="3.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"><Path.Effect><DropShadowEffect Color="#FF781E" BlurRadius="8" ShadowDepth="0" Opacity="1"/></Path.Effect></Path>
+       <Path Data="M 25,25 C 17,22 10,18 7,12 C 15,12 22,15 25,22 C 22,14 23,7 27,4 C 31,10 31,17 27,23 C 32,16 39,13 45,14 C 42,21 35,25 27,26 C 35,24 42,26 46,31 C 38,34 31,31 26,27" Stroke="#63FF55" StrokeThickness="3.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="Transparent"><Path.Effect><DropShadowEffect Color="#36FF55" BlurRadius="9" ShadowDepth="0" Opacity="1"/></Path.Effect></Path>
+       <Path Data="M 5,43 C 13,38 20,40 26,43 C 33,46 39,43 46,39" Stroke="#36CFFF" StrokeThickness="2.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round"><Path.Effect><DropShadowEffect Color="#16BFFF" BlurRadius="9" ShadowDepth="0" Opacity="1"/></Path.Effect></Path>
       </Grid></Viewbox>
     </Border>
    </Border>
