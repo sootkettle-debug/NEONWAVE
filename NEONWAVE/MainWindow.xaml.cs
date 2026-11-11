@@ -28,9 +28,17 @@ public sealed class MusicFolder
     public override string ToString() => Name;
 }
 
+public sealed class MusicPlaylist
+{
+    public string Name { get; set; } = "";
+    public ObservableCollection<Track> Tracks { get; } = new();
+    public override string ToString() => Name;
+}
+
 public partial class MainWindow : Window
 {
     private readonly ObservableCollection<MusicFolder> folders = new();
+    private readonly ObservableCollection<MusicPlaylist> playlists = new();
     private readonly List<Track> allTracks = new();
     private readonly DispatcherTimer timer = new() { Interval = TimeSpan.FromMilliseconds(200) };
     private List<Track> activeTracks = new();
@@ -48,6 +56,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         FolderList.ItemsSource = folders;
+        PlaylistList.ItemsSource = playlists;
         timer.Tick += (_, _) => UpdateDisplay();
         timer.Start();
         Closed += (_, _) => DisposeAudio();
@@ -179,9 +188,26 @@ public partial class MainWindow : Window
 
     private void ShowFolder(MusicFolder folder)
     {
+        PlaylistList.SelectedItem = null;
         FolderTracks.ItemsSource = folder.Tracks;
         FolderContentsTitle.Text = $"TRACKS  •  {folder.Name.ToUpperInvariant()}";
         activeTracks = folder.Tracks.ToList();
+        currentIndex = -1;
+        FolderTracks.SelectedIndex = -1;
+    }
+
+    private void PlaylistList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (PlaylistList.SelectedItem is MusicPlaylist playlist)
+            ShowPlaylist(playlist);
+    }
+
+    private void ShowPlaylist(MusicPlaylist playlist)
+    {
+        FolderList.SelectedItem = null;
+        FolderTracks.ItemsSource = playlist.Tracks;
+        FolderContentsTitle.Text = $"TRACKS  •  {playlist.Name.ToUpperInvariant()}";
+        activeTracks = playlist.Tracks.ToList();
         currentIndex = -1;
         FolderTracks.SelectedIndex = -1;
     }
@@ -389,11 +415,14 @@ public partial class MainWindow : Window
             TrackTitle.Text = "No track loaded";
         }
 
+        var selectedPlaylist = PlaylistList.SelectedItem as MusicPlaylist;
+        selectedPlaylist?.Tracks.Remove(selected);
         var folder = folders.FirstOrDefault(f => f.Tracks.Contains(selected));
         folder?.Tracks.Remove(selected);
         allTracks.Remove(selected);
         if (folder != null && folder.Tracks.Count == 0) folders.Remove(folder);
-        if (folder != null && folders.Contains(folder)) ShowFolder(folder);
+        if (selectedPlaylist != null) ShowPlaylist(selectedPlaylist);
+        else if (folder != null && folders.Contains(folder)) ShowFolder(folder);
         else if (folders.Count > 0) FolderList.SelectedIndex = 0;
         else { FolderTracks.ItemsSource = null; activeTracks.Clear(); currentIndex = -1; }
         UpdateQueueCount();
@@ -403,6 +432,7 @@ public partial class MainWindow : Window
     {
         DisposeAudio();
         folders.Clear();
+        playlists.Clear();
         allTracks.Clear();
         activeTracks.Clear();
         currentIndex = -1;
@@ -423,21 +453,61 @@ public partial class MainWindow : Window
     private void SavePlaylist_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new SaveFileDialog { Filter = "NEONWAVE playlist|*.nwv.json", FileName = "My Playlist.nwv.json" };
-        if (dialog.ShowDialog() == true)
-            File.WriteAllText(dialog.FileName, JsonSerializer.Serialize(allTracks.Select(t => t.Path),
+        if (dialog.ShowDialog() != true) return;
+
+        try
+        {
+            var paths = allTracks.Select(t => t.Path).ToArray();
+            File.WriteAllText(dialog.FileName, JsonSerializer.Serialize(paths,
                 new JsonSerializerOptions { WriteIndented = true }));
+            var playlist = CreatePlaylist(System.IO.Path.GetFileNameWithoutExtension(
+                System.IO.Path.GetFileNameWithoutExtension(dialog.FileName)), paths);
+            AddOrReplacePlaylist(playlist);
+            PlaylistList.SelectedItem = playlist;
+        }
+        catch (Exception ex) { MessageBox.Show(ex.Message, "Playlist save error"); }
     }
 
     private void LoadPlaylist_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFileDialog { Filter = "NEONWAVE playlist|*.nwv.json;*.json" };
+        var dialog = new OpenFileDialog { Filter = "NEONWAVE playlist|*.nwv.json;*.json", Multiselect = true };
         if (dialog.ShowDialog() != true) return;
-        try
+        foreach (var file in dialog.FileNames)
         {
-            var paths = JsonSerializer.Deserialize<string[]>(File.ReadAllText(dialog.FileName)) ?? [];
-            AddIndividualFiles(paths);
+            try
+            {
+                var paths = JsonSerializer.Deserialize<string[]>(File.ReadAllText(file)) ?? [];
+                AddIndividualFiles(paths.Where(File.Exists));
+                var playlist = CreatePlaylist(System.IO.Path.GetFileNameWithoutExtension(
+                    System.IO.Path.GetFileNameWithoutExtension(file)), paths);
+                AddOrReplacePlaylist(playlist);
+                PlaylistList.SelectedItem = playlist;
+            }
+            catch (Exception ex) { MessageBox.Show($"Could not load {file}.\\n\\n{ex.Message}", "Playlist error"); }
         }
-        catch (Exception ex) { MessageBox.Show(ex.Message, "Playlist error"); }
+    }
+
+    private MusicPlaylist CreatePlaylist(string name, IEnumerable<string> paths)
+    {
+        var playlist = new MusicPlaylist { Name = name };
+        foreach (var path in paths.Where(File.Exists).Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            var fullPath = System.IO.Path.GetFullPath(path);
+            var track = allTracks.FirstOrDefault(t =>
+                string.Equals(t.Path, fullPath, StringComparison.OrdinalIgnoreCase))
+                ?? new Track { Path = fullPath };
+            playlist.Tracks.Add(track);
+        }
+        return playlist;
+    }
+
+    private void AddOrReplacePlaylist(MusicPlaylist playlist)
+    {
+        var existing = playlists.FirstOrDefault(p =>
+            string.Equals(p.Name, playlist.Name, StringComparison.OrdinalIgnoreCase));
+        if (existing != null) playlists.Remove(existing);
+        playlists.Add(playlist);
+        UpdateQueueCount();
     }
 
     private void Window_KeyDown(object sender, KeyEventArgs e)
