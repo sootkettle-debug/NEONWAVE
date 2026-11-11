@@ -26,12 +26,10 @@ jobs:
         run: dotnet restore NEONWAVE/NEONWAVE.csproj
       - name: Publish standalone x64 app
         run: dotnet publish NEONWAVE/NEONWAVE.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o publish
-      - name: Give this icon test a fresh executable name
-        run: Rename-Item publish/NEONWAVE.exe NEONWAVE-IconTest.exe
       - name: Upload NEONWAVE.exe
         uses: actions/upload-artifact@v4
         with:
           name: NEONWAVE-Windows-x64
-          path: publish/NEONWAVE-IconTest.exe
+          path: publish/NEONWAVE.exe
           if-no-files-found: error
           retention-days: 30
