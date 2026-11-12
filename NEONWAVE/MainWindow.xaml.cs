@@ -70,10 +70,12 @@ public partial class MainWindow : Window
         var expand = LibraryContent.Visibility != Visibility.Visible;
         LibraryActions.Visibility = expand ? Visibility.Visible : Visibility.Collapsed;
         LibraryContent.Visibility = expand ? Visibility.Visible : Visibility.Collapsed;
+        LibraryContent.Height = expand ? double.NaN : 0;
         QueueCount.Visibility = expand ? Visibility.Visible : Visibility.Collapsed;
         LibraryRow.Height = expand
             ? new GridLength(1, GridUnitType.Star)
             : GridLength.Auto;
+        MusicLibraryPanel.Height = expand ? double.NaN : 48;
         MusicLibraryPanel.Padding = expand
             ? new Thickness(14)
             : new Thickness(14, 8, 14, 8);
