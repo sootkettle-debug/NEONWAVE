@@ -68,6 +68,7 @@ public partial class MainWindow : Window
     private void ToggleMusicLibrary_Click(object sender, RoutedEventArgs e)
     {
         var expand = LibraryContent.Visibility != Visibility.Visible;
+        LibraryActions.Visibility = expand ? Visibility.Visible : Visibility.Collapsed;
         LibraryContent.Visibility = expand ? Visibility.Visible : Visibility.Collapsed;
         QueueCount.Visibility = expand ? Visibility.Visible : Visibility.Collapsed;
         LibraryRow.Height = expand
