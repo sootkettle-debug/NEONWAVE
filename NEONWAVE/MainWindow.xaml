@@ -19,7 +19,36 @@
     </Grid>
    </ControlTemplate></Setter.Value></Setter>
   </Style>
-  <Style TargetType="Slider"><Setter Property="Foreground" Value="#0A4778"/><Setter Property="Background" Value="#101B30"/></Style>
+  <Style TargetType="Slider">
+   <Setter Property="Foreground" Value="#0A4778"/>
+   <Setter Property="Background" Value="#101B30"/>
+   <Setter Property="Height" Value="20"/>
+   <Setter Property="Template">
+    <Setter.Value>
+     <ControlTemplate TargetType="Slider">
+      <Grid VerticalAlignment="Center" Height="20">
+       <Track x:Name="PART_Track" IsDirectionReversed="{TemplateBinding IsDirectionReversed}">
+        <Track.DecreaseRepeatButton>
+         <RepeatButton Command="Slider.DecreaseLarge" IsTabStop="False" Focusable="False" Height="5" VerticalAlignment="Center" Background="#0A4778" BorderThickness="0">
+          <RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Background="{TemplateBinding Background}" CornerRadius="0"/></ControlTemplate></RepeatButton.Template>
+         </RepeatButton>
+        </Track.DecreaseRepeatButton>
+        <Track.Thumb>
+         <Thumb Width="13" Height="13" Focusable="False">
+          <Thumb.Template><ControlTemplate TargetType="Thumb"><Border Background="#07345F" BorderBrush="#258BFF" BorderThickness="1" CornerRadius="0"><Border.Effect><DropShadowEffect Color="#087BFF" BlurRadius="8" ShadowDepth="0" Opacity="0.95"/></Border.Effect></Border></ControlTemplate></Thumb.Template>
+         </Thumb>
+        </Track.Thumb>
+        <Track.IncreaseRepeatButton>
+         <RepeatButton Command="Slider.IncreaseLarge" IsTabStop="False" Focusable="False" Height="5" VerticalAlignment="Center" Background="#101B30" BorderThickness="0">
+          <RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Background="{TemplateBinding Background}" CornerRadius="0"/></ControlTemplate></RepeatButton.Template>
+         </RepeatButton>
+        </Track.IncreaseRepeatButton>
+       </Track>
+      </Grid>
+     </ControlTemplate>
+    </Setter.Value>
+   </Setter>
+  </Style>
   <Style TargetType="Button">
    <Setter Property="Foreground" Value="#EDEBFF"/><Setter Property="Background" Value="#25203B"/>
    <Setter Property="BorderBrush" Value="#FF70D8"/><Setter Property="BorderThickness" Value="1"/>
