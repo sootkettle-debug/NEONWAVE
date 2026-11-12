@@ -29,7 +29,7 @@
  </Window.Resources>
  <Grid Margin="22">
   <Grid.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,1"><GradientStop Color="#0A0B18" Offset="0"/><GradientStop Color="#171027" Offset="0.48"/><GradientStop Color="#10172A" Offset="1"/></LinearGradientBrush></Grid.Background>
-  <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+  <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
   <Grid Grid.Row="0" Margin="0,0,0,18">
    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
    <TextBlock Text="N E O N W A V E" FontSize="27" FontWeight="Bold" Foreground="#36F5FF" VerticalAlignment="Center"/>
@@ -47,9 +47,16 @@
    </Border>
   </Grid>
   <Border Grid.Row="1" Background="#17152A" BorderBrush="#493052" BorderThickness="1" CornerRadius="12" Padding="16" Margin="0,0,0,14">
-   <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+   <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
     <Grid><StackPanel><TextBlock Text="NOW TRANSMITTING" Foreground="#FF3BC8" FontSize="10" FontWeight="Bold"/><TextBlock x:Name="TrackTitle" Text="No track loaded" FontSize="21" FontWeight="SemiBold" Margin="0,5,0,0"/><TextBlock x:Name="TrackInfo" Text="Add an audio folder or drop music files here" Foreground="#8586A8" FontSize="11" Margin="0,3,0,0"/></StackPanel><Border HorizontalAlignment="Right" Width="76" Height="76" CornerRadius="10" Background="#1C1D36" BorderBrush="#36F5FF" BorderThickness="1"><Viewbox><TextBlock Text="♫" Foreground="#36F5FF" FontSize="44"/></Viewbox></Border></Grid>
     <Grid Grid.Row="1" Margin="0,14,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock x:Name="ElapsedText" Text="0:00" Foreground="#8586A8" FontSize="10" VerticalAlignment="Center"/><Slider x:Name="SeekSlider" Grid.Column="1" Minimum="0" Maximum="100" Value="0" Margin="12,0" VerticalAlignment="Center" ValueChanged="SeekSlider_ValueChanged" PreviewMouseLeftButtonDown="SeekSlider_MouseDown" PreviewMouseLeftButtonUp="SeekSlider_MouseUp"/><TextBlock x:Name="DurationText" Grid.Column="2" Text="0:00" Foreground="#8586A8" FontSize="10" VerticalAlignment="Center"/></Grid>
+    <Border Grid.Row="2" Background="#17152A" BorderBrush="#493052" BorderThickness="1" CornerRadius="10" Padding="10" Margin="0,12,0,0">
+     <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions>
+      <TextBlock Text="NEONWAVE  •  READY TO PLAY" Foreground="#77799E" FontSize="9" VerticalAlignment="Center"/>
+      <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center"><Button Content="|◀" Click="Previous_Click" FontSize="9" Width="78"/><Button x:Name="PlayButton" Content="▶" Click="Play_Click" FontSize="9" Width="78" Background="#24264A"/><Button Content="■" Click="Stop_Click" FontSize="9" Width="78"/><Button Content="▶|" Click="Next_Click" FontSize="9" Width="78"/></StackPanel>
+      <StackPanel Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center"><TextBlock x:Name="VolumeText" Text="80%" Foreground="#36F5FF" FontSize="10" HorizontalAlignment="Right"/><Slider x:Name="VolumeSlider" Minimum="0" Maximum="100" Value="80" Width="120" ValueChanged="VolumeSlider_ValueChanged"/></StackPanel>
+     </Grid>
+    </Border>
    </Grid>
   </Border>
   <Border Grid.Row="2" Background="#141629" BorderBrush="#34304F" BorderThickness="1" CornerRadius="12" Padding="14">
@@ -90,9 +97,6 @@
     </Grid>
     <TextBlock Grid.Row="2" x:Name="QueueCount" Text="0 TRACKS  •  ADD A FOLDER TO BEGIN" Foreground="#8586A8" FontSize="9" Margin="3,10,0,0"/>
    </Grid>
-  </Border>
-  <Border Grid.Row="3" Background="#17152A" BorderBrush="#493052" BorderThickness="1" CornerRadius="12" Padding="12" Margin="0,14,0,0">
-   <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions><TextBlock Text="NEONWAVE  •  READY TO PLAY" Foreground="#77799E" FontSize="9" VerticalAlignment="Center"/><StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center"><Button Content="|◀" Click="Previous_Click" FontSize="9" Width="78"/><Button x:Name="PlayButton" Content="▶" Click="Play_Click" FontSize="9" Width="78" Background="#24264A"/><Button Content="■" Click="Stop_Click" FontSize="9" Width="78"/><Button Content="▶|" Click="Next_Click" FontSize="9" Width="78"/></StackPanel><StackPanel Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center"><TextBlock x:Name="VolumeText" Text="80%" Foreground="#36F5FF" FontSize="10" HorizontalAlignment="Right"/><Slider x:Name="VolumeSlider" Minimum="0" Maximum="100" Value="80" Width="120" ValueChanged="VolumeSlider_ValueChanged"/></StackPanel></Grid>
   </Border>
  </Grid>
 </Window>
