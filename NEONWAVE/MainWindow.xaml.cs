@@ -65,6 +65,24 @@ public partial class MainWindow : Window
     private static bool IsAudioFile(string path) =>
         SupportedExtensions.Contains(System.IO.Path.GetExtension(path).ToLowerInvariant());
 
+    private void ToggleMusicLibrary_Click(object sender, RoutedEventArgs e)
+    {
+        var expand = LibraryContent.Visibility != Visibility.Visible;
+        LibraryContent.Visibility = expand ? Visibility.Visible : Visibility.Collapsed;
+        QueueCount.Visibility = expand ? Visibility.Visible : Visibility.Collapsed;
+        LibraryRow.Height = expand
+            ? new GridLength(1, GridUnitType.Star)
+            : GridLength.Auto;
+        MusicLibraryPanel.Padding = expand
+            ? new Thickness(14)
+            : new Thickness(14, 8, 14, 8);
+        LibraryHeader.Margin = expand
+            ? new Thickness(0, 0, 0, 10)
+            : new Thickness(0);
+        LibraryToggleText.Text = expand ? "CLOSE MUSIC LIBRARY" : "OPEN MUSIC LIBRARY";
+        LibraryToggleButton.Content = expand ? "−" : "+";
+    }
+
     private MusicFolder GetOrCreateFolder(string folderPath, string? displayName = null)
     {
         var normalized = System.IO.Path.GetFullPath(folderPath);
