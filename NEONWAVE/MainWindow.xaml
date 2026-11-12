@@ -19,7 +19,7 @@
     </Grid>
    </ControlTemplate></Setter.Value></Setter>
   </Style>
-  <Style TargetType="Slider"><Setter Property="Foreground" Value="#36F5FF"/></Style>
+  <Style TargetType="Slider"><Setter Property="Foreground" Value="#0A4778"/><Setter Property="Background" Value="#101B30"/></Style>
   <Style TargetType="Button">
    <Setter Property="Foreground" Value="#EDEBFF"/><Setter Property="Background" Value="#25203B"/>
    <Setter Property="BorderBrush" Value="#FF70D8"/><Setter Property="BorderThickness" Value="1"/>
@@ -92,7 +92,7 @@
      </Border>
      <GridSplitter Grid.Column="3" Width="6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#29213D" ShowsPreview="True" ResizeBehavior="PreviousAndNext"/>
      <Border Grid.Column="4" Background="#0D1020" BorderBrush="#34304F" BorderThickness="1" CornerRadius="8" Padding="6">
-      <DockPanel><TextBlock DockPanel.Dock="Top" x:Name="FolderContentsTitle" Text="TRACKS IN SELECTED FOLDER" Foreground="#36F5FF" FontSize="10" FontWeight="Bold" Margin="7,3,4,5"/><ListBox x:Name="FolderTracks" MouseDoubleClick="FolderTracks_MouseDoubleClick" DisplayMemberPath="DisplayName" Background="Transparent" BorderThickness="0" Padding="2"><ListBox.ItemContainerStyle><Style TargetType="ListBoxItem"><Setter Property="Foreground" Value="#E9E9FA"/><Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/><Setter Property="Padding" Value="4,2"/><Setter Property="Margin" Value="0"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/></Style></ListBox.ItemContainerStyle></ListBox></DockPanel>
+      <DockPanel><TextBlock DockPanel.Dock="Top" x:Name="FolderContentsTitle" Text="TRACKS" Foreground="#36F5FF" FontSize="10" FontWeight="Bold" Margin="7,3,4,5"/><ListBox x:Name="FolderTracks" MouseDoubleClick="FolderTracks_MouseDoubleClick" DisplayMemberPath="DisplayName" Background="Transparent" BorderThickness="0" Padding="2"><ListBox.ItemContainerStyle><Style TargetType="ListBoxItem"><Setter Property="Foreground" Value="#E9E9FA"/><Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/><Setter Property="Padding" Value="4,2"/><Setter Property="Margin" Value="0"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/></Style></ListBox.ItemContainerStyle></ListBox></DockPanel>
      </Border>
     </Grid>
     <TextBlock Grid.Row="2" x:Name="QueueCount" Text="0 TRACKS  •  ADD A FOLDER TO BEGIN" Foreground="#8586A8" FontSize="9" Margin="3,10,0,0"/>
