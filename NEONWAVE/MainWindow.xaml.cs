@@ -48,6 +48,7 @@ public partial class MainWindow : Window
     private bool draggingSeek;
     private int currentIndex = -1;
     private bool advanceQueued;
+    private double expandedWindowHeight;
 
     private static readonly string[] SupportedExtensions =
         [".mp3", ".wav", ".aiff", ".aif", ".wma", ".aac", ".m4a", ".flac"];
@@ -55,6 +56,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        expandedWindowHeight = Height;
         FolderList.ItemsSource = folders;
         PlaylistList.ItemsSource = playlists;
         timer.Tick += (_, _) => UpdateDisplay();
@@ -68,6 +70,21 @@ public partial class MainWindow : Window
     private void ToggleMusicLibrary_Click(object sender, RoutedEventArgs e)
     {
         var expand = LibraryContent.Visibility != Visibility.Visible;
+
+        // The curtain should shrink the actual application window, not leave
+        // an empty lower half behind the compact library header.
+        if (expand)
+        {
+            MinHeight = 560;
+            Height = Math.Max(expandedWindowHeight, MinHeight);
+        }
+        else
+        {
+            expandedWindowHeight = Height;
+            MinHeight = 400;
+            Height = 450;
+        }
+
         LibraryActions.Visibility = expand ? Visibility.Visible : Visibility.Collapsed;
         LibraryContent.Visibility = expand ? Visibility.Visible : Visibility.Collapsed;
         LibraryContent.Height = expand ? double.NaN : 0;
