@@ -28,8 +28,10 @@ public sealed class Track : INotifyPropertyChanged
             if (isPlaying == value) return;
             isPlaying = value;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsPlaying)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PlayingMarker)));
         }
     }
+    public string PlayingMarker => IsPlaying ? "●" : "";
 
     public event PropertyChangedEventHandler? PropertyChanged;
     public override string ToString() => DisplayName;
