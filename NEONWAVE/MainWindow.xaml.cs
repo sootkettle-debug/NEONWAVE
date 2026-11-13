@@ -333,6 +333,13 @@ public partial class MainWindow : Window
             currentIndex = index;
             var track = activeTracks[index];
             FolderTracks.SelectedItem = track;
+            if (FolderTracks.Items.Contains(track))
+            {
+                // Wait until WPF has applied the selection/layout before scrolling,
+                // so the active track is brought fully into view.
+                Dispatcher.BeginInvoke(DispatcherPriority.Loaded,
+                    new Action(() => FolderTracks.ScrollIntoView(track)));
+            }
             reader = new AudioFileReader(track.Path) { Volume = (float)(VolumeSlider.Value / 100.0) };
 
             var playbackReader = reader;
