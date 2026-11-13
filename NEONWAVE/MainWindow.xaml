@@ -50,14 +50,31 @@
    </Setter>
   </Style>
   <Style TargetType="Button">
-   <Setter Property="Foreground" Value="#E0E6E5"/><Setter Property="Background" Value="#20272A"/>
-   <Setter Property="BorderBrush" Value="#9AADA4"/><Setter Property="BorderThickness" Value="1"/>
-   <Setter Property="Padding" Value="3,6"/><Setter Property="FontSize" Value="9"/><Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="Margin" Value="3,0"/>
+   <Setter Property="Foreground" Value="#E1E8E5"/><Setter Property="Background" Value="#252C2F"/>
+   <Setter Property="BorderBrush" Value="#748084"/><Setter Property="BorderThickness" Value="1"/>
+   <Setter Property="Padding" Value="7,6"/><Setter Property="FontSize" Value="9"/>
+   <Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="Margin" Value="3,0"/>
    <Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Cursor" Value="Hand"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button"><Grid>
+    <Border x:Name="Face" CornerRadius="9" BorderThickness="1" BorderBrush="#748084">
+     <Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+      <GradientStop Color="#566164" Offset="0"/><GradientStop Color="#343E41" Offset="0.18"/>
+      <GradientStop Color="#171D20" Offset="0.52"/><GradientStop Color="#30393C" Offset="1"/>
+     </LinearGradientBrush></Border.Background>
+     <Border.Effect><DropShadowEffect Color="#000000" BlurRadius="5" ShadowDepth="2" Opacity="0.85"/></Border.Effect>
+    </Border>
+    <Border Margin="2" CornerRadius="7" BorderThickness="1" BorderBrush="#263034" IsHitTestVisible="False"/>
+    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True"/>
+   </Grid><ControlTemplate.Triggers>
+    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Face" Property="BorderBrush" Value="#C4D0C9"/></Trigger>
+    <Trigger Property="IsPressed" Value="True"><Setter TargetName="Face" Property="Opacity" Value="0.78"/></Trigger>
+    <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Face" Property="Opacity" Value="0.45"/></Trigger>
+   </ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
   </Style>
  </Window.Resources>
- <Grid Margin="22">\n  <Grid.Background><LinearGradientBrush StartPoint="0,0" EndPoint="0,1"><GradientStop Color="#30383B" Offset="0"/><GradientStop Color="#121719" Offset="0.12"/><GradientStop Color="#080B0D" Offset="1"/></LinearGradientBrush></Grid.Background>
-  <Grid.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,1"><GradientStop Color="#0A0B18" Offset="0"/><GradientStop Color="#171C1F" Offset="0.48"/><GradientStop Color="#10172A" Offset="1"/></LinearGradientBrush></Grid.Background>
+ <Grid Margin="22">
+  <Grid.Background><LinearGradientBrush StartPoint="0,0" EndPoint="0,1"><GradientStop Color="#30383B" Offset="0"/><GradientStop Color="#121719" Offset="0.12"/><GradientStop Color="#080B0D" Offset="1"/></LinearGradientBrush></Grid.Background>
+
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition x:Name="LibraryRow" Height="*"/></Grid.RowDefinitions>
   <Grid Grid.Row="0" Margin="0,0,0,18">
    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
@@ -68,8 +85,8 @@
      <Border.Background><RadialGradientBrush><GradientStop Color="#25302E" Offset="0"/><GradientStop Color="#1A2222" Offset="0.58"/><GradientStop Color="#0C1113" Offset="1"/></RadialGradientBrush></Border.Background>
      <Border.Effect><DropShadowEffect Color="#C7D8C7" BlurRadius="15" ShadowDepth="0" Opacity="0.75"/></Border.Effect>
      <Viewbox Margin="7"><Grid Width="50" Height="50">
-       <Path Data="M 25,25 C 24,30 23,35 22,40 C 21,42 21,43 20,44" Stroke="#D2A66A" StrokeThickness="3.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"><Path.Effect><DropShadowEffect Color="#FF781E" BlurRadius="8" ShadowDepth="0" Opacity="1"/></Path.Effect></Path>
-       <Path Data="M 25,25 C 17,22 10,18 7,12 C 15,12 22,15 25,22 C 22,14 23,7 27,4 C 31,10 31,17 27,23 C 32,16 39,13 45,14 C 42,21 35,25 27,26 C 35,24 42,26 46,31 C 38,34 31,31 26,27" Stroke="#B8D5A5" StrokeThickness="3.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="Transparent"><Path.Effect><DropShadowEffect Color="#36FF55" BlurRadius="9" ShadowDepth="0" Opacity="1"/></Path.Effect></Path>
+       <Path Data="M 25,25 C 24,30 23,35 22,40 C 21,42 21,43 20,44" Stroke="#D2A66A" StrokeThickness="3.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"><Path.Effect><DropShadowEffect Color="#D2A66A" BlurRadius="8" ShadowDepth="0" Opacity="1"/></Path.Effect></Path>
+       <Path Data="M 25,25 C 17,22 10,18 7,12 C 15,12 22,15 25,22 C 22,14 23,7 27,4 C 31,10 31,17 27,23 C 32,16 39,13 45,14 C 42,21 35,25 27,26 C 35,24 42,26 46,31 C 38,34 31,31 26,27" Stroke="#B8D5A5" StrokeThickness="3.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="Transparent"><Path.Effect><DropShadowEffect Color="#B8D5A5" BlurRadius="9" ShadowDepth="0" Opacity="1"/></Path.Effect></Path>
        <Path Data="M 5,43 C 13,38 20,40 26,43 C 33,46 39,43 46,39" Stroke="#A9C9D0" StrokeThickness="2.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round"><Path.Effect><DropShadowEffect Color="#9DBCC4" BlurRadius="9" ShadowDepth="0" Opacity="1"/></Path.Effect></Path>
       </Grid></Viewbox>
     </Border>
@@ -77,7 +94,7 @@
   </Grid>
   <Border Grid.Row="1" Background="#20272A" BorderBrush="#657176" BorderThickness="1" CornerRadius="4" Padding="16" Margin="0,0,0,14">
    <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-    <Grid><StackPanel><TextBlock Text="NOW PLAYING" Foreground="#B6C9BA" FontSize="10" FontWeight="Bold"/><TextBlock x:Name="TrackTitle" Text="No track loaded" FontSize="21" FontWeight="SemiBold" Margin="0,5,0,0"/><TextBlock x:Name="TrackInfo" Text="Add an audio folder or drop music files here" Foreground="#9AA8A4" FontSize="11" Margin="0,3,0,0"/></StackPanel><Border HorizontalAlignment="Right" Width="76" Height="76" CornerRadius="3" Background="#1C1D36" BorderBrush="#C7D8C7" BorderThickness="1"><Viewbox><TextBlock Text="♫" Foreground="#C7D8C7" FontSize="44"/></Viewbox></Border></Grid>
+    <Grid><StackPanel><TextBlock Text="NOW PLAYING" Foreground="#B6C9BA" FontSize="10" FontWeight="Bold"/><TextBlock x:Name="TrackTitle" Text="No track loaded" FontSize="21" FontWeight="SemiBold" Margin="0,5,0,0"/><TextBlock x:Name="TrackInfo" Text="Add an audio folder or drop music files here" Foreground="#9AA8A4" FontSize="11" Margin="0,3,0,0"/></StackPanel><Border HorizontalAlignment="Right" Width="76" Height="76" CornerRadius="3" Background="#0B1012" BorderBrush="#C7D8C7" BorderThickness="1"><Viewbox><TextBlock Text="♫" Foreground="#C7D8C7" FontSize="44"/></Viewbox></Border></Grid>
     <Grid Grid.Row="1" Margin="0,14,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock x:Name="ElapsedText" Text="0:00" Foreground="#9AA8A4" FontSize="10" VerticalAlignment="Center"/><Slider x:Name="SeekSlider" Grid.Column="1" Minimum="0" Maximum="100" Value="0" Margin="12,0" VerticalAlignment="Center" Foreground="#263238" Background="#11171A" ValueChanged="SeekSlider_ValueChanged" PreviewMouseLeftButtonDown="SeekSlider_MouseDown" PreviewMouseLeftButtonUp="SeekSlider_MouseUp"/><TextBlock x:Name="DurationText" Grid.Column="2" Text="0:00" Foreground="#9AA8A4" FontSize="10" VerticalAlignment="Center"/></Grid>
     <Border Grid.Row="2" Background="#171D20" BorderBrush="#485257" BorderThickness="1" CornerRadius="10" Padding="10" Margin="0,12,0,0">
      <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions>
