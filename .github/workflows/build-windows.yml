@@ -1,8 +1,8 @@
-name: Build NEONWAVE for Windows
+name: Build DARKWAVE for Windows
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, darkwave ]
   workflow_dispatch:
 
 permissions:
@@ -29,7 +29,7 @@ jobs:
       - name: Upload NEONWAVE.exe
         uses: actions/upload-artifact@v4
         with:
-          name: NEONWAVE-Windows-x64
-          path: publish/NEONWAVE.exe
+          name: DARKWAVE-Windows-x64
+          path: publish/DARKWAVE.exe
           if-no-files-found: error
           retention-days: 30
