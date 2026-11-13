@@ -11,7 +11,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
 using System.Windows.Threading;
 
-namespace NEONWAVE;
+namespace DARKWAVE;
 
 public sealed class Track
 {
@@ -170,7 +170,7 @@ public partial class MainWindow : Window
     {
         var dialog = new OpenFileDialog
         {
-            Title = "Add audio to NEONWAVE",
+            Title = "Add audio to DARKWAVE",
             Filter = "Audio files|*.mp3;*.wav;*.aiff;*.aif;*.wma;*.aac;*.m4a;*.flac|All files|*.*",
             Multiselect = true
         };
@@ -191,7 +191,7 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             MessageBox.Show($"Could not scan that folder. Some folders may be inaccessible.\n\n{ex.Message}",
-                "NEONWAVE folder import", MessageBoxButton.OK, MessageBoxImage.Warning);
+                "DARKWAVE folder import", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 
@@ -212,7 +212,7 @@ public partial class MainWindow : Window
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Could not fully scan {item}.\n\n{ex.Message}", "NEONWAVE folder import",
+                MessageBox.Show($"Could not fully scan {item}.\n\n{ex.Message}", "DARKWAVE folder import",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
@@ -332,7 +332,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Could not play this file.\n\n{ex.Message}", "NEONWAVE audio error",
+            MessageBox.Show($"Could not play this file.\n\n{ex.Message}", "DARKWAVE audio error",
                 MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
@@ -490,7 +490,7 @@ public partial class MainWindow : Window
 
     private void SavePlaylist_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new SaveFileDialog { Filter = "NEONWAVE playlist|*.nwv.json", FileName = "My Playlist.nwv.json" };
+        var dialog = new SaveFileDialog { Filter = "DARKWAVE playlist|*.dwv.json", FileName = "My Playlist.dwv.json" };
         if (dialog.ShowDialog() != true) return;
 
         try
@@ -508,7 +508,7 @@ public partial class MainWindow : Window
 
     private void LoadPlaylist_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFileDialog { Filter = "NEONWAVE playlist|*.nwv.json;*.json", Multiselect = true };
+        var dialog = new OpenFileDialog { Filter = "DARKWAVE playlist|*.dwv.json;*.json", Multiselect = true };
         if (dialog.ShowDialog() != true) return;
         foreach (var file in dialog.FileNames)
         {
