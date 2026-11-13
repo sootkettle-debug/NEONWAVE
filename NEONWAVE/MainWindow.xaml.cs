@@ -1,6 +1,7 @@
 using Microsoft.Win32;
 using NAudio.Wave;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
@@ -13,10 +14,24 @@ using System.Windows.Threading;
 
 namespace NEONWAVE;
 
-public sealed class Track
+public sealed class Track : INotifyPropertyChanged
 {
+    private bool isPlaying;
+
     public string Path { get; set; } = "";
     public string DisplayName => System.IO.Path.GetFileNameWithoutExtension(Path);
+    public bool IsPlaying
+    {
+        get => isPlaying;
+        set
+        {
+            if (isPlaying == value) return;
+            isPlaying = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsPlaying)));
+        }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
     public override string ToString() => DisplayName;
 }
 
@@ -263,12 +278,16 @@ public partial class MainWindow : Window
         if (output?.PlaybackState == PlaybackState.Playing)
         {
             output.Pause();
+            if (currentIndex >= 0 && currentIndex < activeTracks.Count)
+                activeTracks[currentIndex].IsPlaying = false;
             SetLogoPulse(false);
             PlayButton.Content = "▶";
         }
         else if (output?.PlaybackState == PlaybackState.Paused)
         {
             output.Play();
+            if (currentIndex >= 0 && currentIndex < activeTracks.Count)
+                activeTracks[currentIndex].IsPlaying = true;
             SetLogoPulse(true);
             PlayButton.Content = "Ⅱ";
         }
@@ -294,6 +313,8 @@ public partial class MainWindow : Window
     private void Stop_Click(object sender, RoutedEventArgs e)
     {
         SetLogoPulse(false);
+        if (currentIndex >= 0 && currentIndex < activeTracks.Count)
+            activeTracks[currentIndex].IsPlaying = false;
         output?.Stop();
         if (reader != null) reader.Position = 0;
         PlayButton.Content = "▶";
@@ -322,6 +343,7 @@ public partial class MainWindow : Window
                 Dispatcher.BeginInvoke(() => TryAdvanceEndedTrack(playbackOutput, playbackReader));
             };
             playbackOutput.Play();
+            track.IsPlaying = true;
             SetLogoPulse(true);
             PlayButton.Content = "Ⅱ";
             TrackTitle.Text = track.DisplayName;
@@ -372,6 +394,8 @@ public partial class MainWindow : Window
     private void DisposeAudio()
     {
         SetLogoPulse(false);
+        foreach (var track in allTracks) track.IsPlaying = false;
+        foreach (var track in activeTracks) track.IsPlaying = false;
         if (output != null)
         {
             var oldOutput = output;
