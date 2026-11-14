@@ -101,6 +101,12 @@ public partial class MainWindow : Window
 
     private static void ApplyAccentToVisualTree(DependencyObject root, Brush brush, Color color)
     {
+        // VisualTreeHelper only accepts Visual/Visual3D objects. WPF templates can
+        // expose other DependencyObject types, so stop safely instead of throwing
+        // while the user changes the accent during playback.
+        if (root is not Visual && root is not System.Windows.Media.Media3D.Visual3D)
+            return;
+
         if (root is TextBlock textBlock)
             textBlock.Foreground = brush;
         if (root is Control control)
@@ -110,10 +116,21 @@ public partial class MainWindow : Window
         {
             border.Background = brush;
             if (border.Effect is DropShadowEffect glow)
+            {
+                // Effects may be frozen by WPF/resource sharing; clone before editing.
+                if (glow.IsFrozen)
+                {
+                    glow = glow.Clone();
+                    border.Effect = glow;
+                }
+
+                glow.BeginAnimation(DropShadowEffect.ColorProperty, null);
                 glow.Color = color;
+            }
         }
 
-        for (int i = 0; i < VisualTreeHelper.GetChildrenCount(root); i++)
+        int childCount = VisualTreeHelper.GetChildrenCount(root);
+        for (int i = 0; i < childCount; i++)
             ApplyAccentToVisualTree(VisualTreeHelper.GetChild(root, i), brush, color);
     }
 
