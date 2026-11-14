@@ -181,20 +181,20 @@ public partial class MainWindow : Window
     {
         var expand = LibraryContent.Visibility != Visibility.Visible;
 
-        // On collapse, remove the full expanded library-row height.
-        // The 32px header remains, with the same 14px bottom margin as the
-        // spacing between the playback controls and the library panel.
+        // Let WPF calculate the compact window height from the remaining
+        // visible content. This avoids leaving a blank area when the library
+        // is collapsed and avoids estimating how much height to subtract.
         if (expand)
         {
+            SizeToContent = SizeToContent.Manual;
             MinHeight = 560;
             Height = Math.Max(expandedWindowHeight, MinHeight);
         }
         else
         {
             expandedWindowHeight = Height;
-            var libraryHeightToRemove = Math.Max(0, LibraryRow.ActualHeight - 32);
-            MinHeight = 400;
-            Height = Math.Max(MinHeight, expandedWindowHeight - libraryHeightToRemove);
+            MinHeight = 0;
+            SizeToContent = SizeToContent.Height;
         }
 
         LibraryActions.Visibility = expand ? Visibility.Visible : Visibility.Hidden;
