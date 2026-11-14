@@ -106,6 +106,7 @@ public partial class MainWindow : Window
         currentAccentColor = color;
         currentAccentBrush = new SolidColorBrush(color);
         Resources["AccentBrush"] = currentAccentBrush;
+        Resources["AccentColor"] = color;
         ApplyAccentToVisualTree(PlaybackControlsPanel, currentAccentBrush, color);
         ApplyAccentToVisualTree(MusicLibraryPanel, currentAccentBrush, color);
     }
