@@ -216,6 +216,8 @@ public partial class MainWindow : Window
         }
 
         LibraryActions.Visibility = expand ? Visibility.Visible : Visibility.Hidden;
+        LibraryPlaylistActions.Visibility = expand ? Visibility.Visible : Visibility.Hidden;
+        LibraryTrackActions.Visibility = expand ? Visibility.Visible : Visibility.Hidden;
         LibraryContent.Visibility = expand ? Visibility.Visible : Visibility.Collapsed;
         LibraryContent.Height = expand ? double.NaN : 0;
         QueueCount.Visibility = expand ? Visibility.Visible : Visibility.Collapsed;
