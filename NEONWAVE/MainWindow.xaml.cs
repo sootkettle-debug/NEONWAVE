@@ -181,8 +181,8 @@ public partial class MainWindow : Window
     {
         var expand = LibraryContent.Visibility != Visibility.Visible;
 
-        // The curtain should shrink the actual application window, not leave
-        // an empty lower half behind the compact library header.
+        // Keep the player at its normal size, and reduce only the unused
+        // space below the collapsed library panel by 60 percent.
         if (expand)
         {
             MinHeight = 560;
@@ -191,8 +191,9 @@ public partial class MainWindow : Window
         else
         {
             expandedWindowHeight = Height;
-            MinHeight = 144;
-            Height = 144;
+            var unusedGap = Math.Max(0, LibraryRow.ActualHeight - MusicLibraryPanel.ActualHeight);
+            MinHeight = 400;
+            Height = Math.Max(MinHeight, expandedWindowHeight - (unusedGap * 0.60));
         }
 
         LibraryActions.Visibility = expand ? Visibility.Visible : Visibility.Hidden;
