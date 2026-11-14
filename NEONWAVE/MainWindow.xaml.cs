@@ -181,8 +181,9 @@ public partial class MainWindow : Window
     {
         var expand = LibraryContent.Visibility != Visibility.Visible;
 
-        // Keep the player at its normal size, and reduce only the unused
-        // space below the collapsed library panel by 60 percent.
+        // On collapse, remove the full expanded library-row height.
+        // The 32px header remains, with the same 14px bottom margin as the
+        // spacing between the playback controls and the library panel.
         if (expand)
         {
             MinHeight = 560;
@@ -191,9 +192,9 @@ public partial class MainWindow : Window
         else
         {
             expandedWindowHeight = Height;
-            var unusedGap = Math.Max(0, LibraryRow.ActualHeight - MusicLibraryPanel.ActualHeight);
+            var libraryHeightToRemove = Math.Max(0, LibraryRow.ActualHeight - 32);
             MinHeight = 400;
-            Height = Math.Max(MinHeight, expandedWindowHeight - (unusedGap * 0.60));
+            Height = Math.Max(MinHeight, expandedWindowHeight - libraryHeightToRemove);
         }
 
         LibraryActions.Visibility = expand ? Visibility.Visible : Visibility.Hidden;
