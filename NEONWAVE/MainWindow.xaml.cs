@@ -93,7 +93,7 @@ public partial class MainWindow : Window
 
 
     private void AccentPurple_Click(object sender, RoutedEventArgs e) =>
-        ApplyAccentColor(Color.FromRgb(112, 39, 168));
+        ApplyAccentColor(Color.FromRgb(166, 91, 224));
 
     private void AccentGreen_Click(object sender, RoutedEventArgs e) =>
         ApplyAccentColor(Color.FromRgb(0, 184, 76));
