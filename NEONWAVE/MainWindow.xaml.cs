@@ -135,7 +135,7 @@ public partial class MainWindow : Window
             presenter.SetValue(System.Windows.Documents.TextElement.ForegroundProperty, brush);
     }
 
-    private static void ApplyAccentToVisualTree(DependencyObject root, Brush brush, Color color)
+    private void ApplyAccentToVisualTree(DependencyObject root, Brush brush, Color color)
     {
         ApplyAccentToElement(root, brush);
 
