@@ -14,5 +14,6 @@
   <ItemGroup>
     <PackageReference Include="NAudio" Version="2.2.1" />
     <Resource Include="app.ico" />
+    <Resource Include="Fonts\PirataOne-Regular.ttf" />
   </ItemGroup>
 </Project>
