@@ -391,6 +391,15 @@ public partial class MainWindow : Window
 
     private void Play_Click(object sender, RoutedEventArgs e)
     {
+        // A single-click selection takes priority when starting or switching tracks.
+        var selectedTrack = FolderTracks.SelectedItem as Track;
+        var selectedIndex = selectedTrack == null ? -1 : activeTracks.IndexOf(selectedTrack);
+        if (selectedIndex >= 0 && selectedIndex != currentIndex)
+        {
+            PlayIndex(selectedIndex);
+            return;
+        }
+
         if (output?.PlaybackState == PlaybackState.Playing)
         {
             output.Pause();
@@ -409,7 +418,7 @@ public partial class MainWindow : Window
         }
         else if (activeTracks.Count > 0)
         {
-            PlayIndex(currentIndex < 0 ? 0 : currentIndex);
+            PlayIndex(selectedIndex >= 0 ? selectedIndex : (currentIndex < 0 ? 0 : currentIndex));
         }
     }
 
