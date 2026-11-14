@@ -668,6 +668,59 @@ public partial class MainWindow : Window
         UpdateQueueCount();
     }
 
+    private void RemoveTrack_Click(object sender, RoutedEventArgs e)
+    {
+        // Remove only selected track entries. Keep their containing folders and
+        // playlist objects in the library, even when they become empty.
+        var selectedTracks = FolderTracks.SelectedItems.Cast<Track>().Distinct().ToList();
+        if (selectedTracks.Count == 0 && FolderTracks.SelectedItem is Track selectedTrack)
+            selectedTracks.Add(selectedTrack);
+        if (selectedTracks.Count == 0) return;
+
+        var playingTrack = reader != null && currentIndex >= 0 && currentIndex < activeTracks.Count
+            ? activeTracks[currentIndex]
+            : null;
+        var stopPlayback = playingTrack != null && selectedTracks.Contains(playingTrack);
+
+        if (stopPlayback)
+        {
+            DisposeAudio();
+            PlayButton.Content = "▶";
+            TrackTitle.Text = "No track loaded";
+            TrackInfo.Text = "Select a track to begin playback";
+            changingSeek = true;
+            SeekSlider.Value = 0;
+            changingSeek = false;
+            ElapsedText.Text = "0:00";
+            DurationText.Text = "0:00";
+        }
+
+        foreach (var track in selectedTracks)
+        {
+            allTracks.Remove(track);
+            foreach (var folder in folders)
+                folder.Tracks.Remove(track);
+            foreach (var playlist in playlists)
+                playlist.Tracks.Remove(track);
+        }
+
+        // Refresh the visible track collection without deleting its folder or playlist.
+        if (FolderTracks.ItemsSource is ObservableCollection<Track> visibleTracks)
+        {
+            activeTracks = visibleTracks.ToList();
+        }
+        else
+        {
+            activeTracks = activeTracks.Where(track => !selectedTracks.Contains(track)).ToList();
+        }
+
+        currentIndex = playingTrack != null && !stopPlayback
+            ? activeTracks.IndexOf(playingTrack)
+            : -1;
+        FolderTracks.SelectedItems.Clear();
+        UpdateQueueCount();
+    }
+
     private void Clear_Click(object sender, RoutedEventArgs e)
     {
         DisposeAudio();
