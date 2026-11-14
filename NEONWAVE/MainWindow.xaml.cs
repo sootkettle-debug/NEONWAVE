@@ -105,6 +105,7 @@ public partial class MainWindow : Window
     {
         currentAccentColor = color;
         currentAccentBrush = new SolidColorBrush(color);
+        Resources["AccentBrush"] = currentAccentBrush;
         ApplyAccentToVisualTree(PlaybackControlsPanel, currentAccentBrush, color);
         ApplyAccentToVisualTree(MusicLibraryPanel, currentAccentBrush, color);
     }
@@ -128,11 +129,11 @@ public partial class MainWindow : Window
 
         // TextBlock and templated content use different foreground properties.
         if (element is TextBlock textBlock)
-            textBlock.Foreground = brush;
+            textBlock.SetResourceReference(TextBlock.ForegroundProperty, "AccentBrush");
         else if (element is Control control)
-            control.Foreground = brush;
+            control.SetResourceReference(Control.ForegroundProperty, "AccentBrush");
         else if (element is ContentPresenter presenter)
-            presenter.SetValue(System.Windows.Documents.TextElement.ForegroundProperty, brush);
+            presenter.SetResourceReference(System.Windows.Documents.TextElement.ForegroundProperty, "AccentBrush");
     }
 
     private void ApplyAccentToVisualTree(DependencyObject root, Brush brush, Color color)
