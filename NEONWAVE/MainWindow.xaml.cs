@@ -129,7 +129,7 @@ public partial class MainWindow : Window
         else if (element is Control control)
             control.Foreground = brush;
         else if (element is ContentPresenter presenter)
-            presenter.SetValue(TextElement.ForegroundProperty, brush);
+            presenter.SetValue(System.Windows.Documents.TextElement.ForegroundProperty, brush);
     }
 
     private static void ApplyAccentToVisualTree(DependencyObject root, Brush brush, Color color)
