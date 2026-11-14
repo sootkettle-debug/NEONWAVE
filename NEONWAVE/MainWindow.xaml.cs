@@ -230,7 +230,7 @@ public partial class MainWindow : Window
             ? new Thickness(0, 0, 0, 10)
             : new Thickness(0);
         LibraryTitle.Visibility = expand ? Visibility.Visible : Visibility.Collapsed;
-        LibraryToggleText.Text = expand ? "CLOSE MUSIC LIBRARY" : "OPEN MUSIC LIBRARY";
+        LibraryToggleText.Text = expand ? "CLOSE LIBRARY" : "OPEN LIBRARY";
         LibraryToggleButton.Content = expand ? "−" : "+";
     }
 
