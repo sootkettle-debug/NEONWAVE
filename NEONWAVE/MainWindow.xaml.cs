@@ -134,6 +134,23 @@ public partial class MainWindow : Window
             control.SetResourceReference(Control.ForegroundProperty, "AccentBrush");
         else if (element is ContentPresenter presenter)
             presenter.SetResourceReference(System.Windows.Documents.TextElement.ForegroundProperty, "AccentBrush");
+
+        // Track rows are generated as the list scrolls. Reapply the selected
+        // accent to each newly loaded playing marker and its glow.
+        if (element is Border border && border.Name == "PlayingDot")
+        {
+            border.Background = currentAccentBrush;
+            if (border.Effect is DropShadowEffect glow)
+            {
+                if (glow.IsFrozen)
+                {
+                    glow = glow.Clone();
+                    border.Effect = glow;
+                }
+                glow.BeginAnimation(DropShadowEffect.ColorProperty, null);
+                glow.Color = currentAccentColor;
+            }
+        }
     }
 
     private void ApplyAccentToVisualTree(DependencyObject root, Brush brush, Color color)
