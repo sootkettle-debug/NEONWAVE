@@ -74,11 +74,47 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         expandedWindowHeight = Height;
+        ApplyAccentColor(Color.FromRgb(0, 184, 76));
         FolderList.ItemsSource = folders;
         PlaylistList.ItemsSource = playlists;
         timer.Tick += (_, _) => UpdateDisplay();
         timer.Start();
         Closed += (_, _) => DisposeAudio();
+    }
+
+
+    private void AccentGreen_Click(object sender, RoutedEventArgs e) =>
+        ApplyAccentColor(Color.FromRgb(0, 184, 76));
+
+    private void AccentOrange_Click(object sender, RoutedEventArgs e) =>
+        ApplyAccentColor(Color.FromRgb(255, 138, 0));
+
+    private void AccentBlue_Click(object sender, RoutedEventArgs e) =>
+        ApplyAccentColor(Color.FromRgb(38, 139, 255));
+
+    private void ApplyAccentColor(Color color)
+    {
+        var brush = new SolidColorBrush(color);
+        ApplyAccentToVisualTree(PlaybackControlsPanel, brush, color);
+        ApplyAccentToVisualTree(MusicLibraryPanel, brush, color);
+    }
+
+    private static void ApplyAccentToVisualTree(DependencyObject root, Brush brush, Color color)
+    {
+        if (root is TextBlock textBlock)
+            textBlock.Foreground = brush;
+        if (root is Control control)
+            control.Foreground = brush;
+
+        if (root is Border border && border.Name == "PlayingDot")
+        {
+            border.Background = brush;
+            if (border.Effect is DropShadowEffect glow)
+                glow.Color = color;
+        }
+
+        for (int i = 0; i < VisualTreeHelper.GetChildrenCount(root); i++)
+            ApplyAccentToVisualTree(VisualTreeHelper.GetChild(root, i), brush, color);
     }
 
     private static bool IsAudioFile(string path) =>
