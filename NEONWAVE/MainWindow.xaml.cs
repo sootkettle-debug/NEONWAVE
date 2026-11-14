@@ -121,8 +121,11 @@ public partial class MainWindow : Window
         ApplyAccentToVisualTree(MusicLibraryPanel, currentAccentBrush, currentAccentColor);
     }
 
-    private static void ApplyAccentToElement(DependencyObject element, Brush brush)
+    private void ApplyAccentToElement(DependencyObject element, Brush brush)
     {
+        // The ready-status label is deliberately neutral gray in every accent mode.
+        if (ReferenceEquals(element, ReadyStatusText)) return;
+
         // TextBlock and templated content use different foreground properties.
         if (element is TextBlock textBlock)
             textBlock.Foreground = brush;
