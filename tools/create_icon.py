@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw
 ICON = 256
 SCALE = 4
 S = ICON * SCALE
-PURPLE = (50, 16, 78, 255)
+WHITE = (255, 255, 255, 255)
 BLACK = (0, 0, 0, 255)
 TRANSPARENT = (0, 0, 0, 0)
 OUT = Path("NEONWAVE/app.ico")
@@ -14,9 +14,9 @@ OUT = Path("NEONWAVE/app.ico")
 im = Image.new("RGBA", (S, S), TRANSPARENT)
 draw = ImageDraw.Draw(im)
 
-# Round deep-purple badge with transparent corners.
+# Round white badge with transparent corners.
 margin = 10 * SCALE
-draw.ellipse((margin, margin, S - margin, S - margin), fill=PURPLE)
+draw.ellipse((margin, margin, S - margin, S - margin), fill=WHITE)
 
 # One bold, smooth tilde wave. Its thickness eases to zero at both ends
 # so the silhouette finishes in clean, sharp tapered points.
