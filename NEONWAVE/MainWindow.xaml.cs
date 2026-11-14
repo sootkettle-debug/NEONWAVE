@@ -721,6 +721,53 @@ public partial class MainWindow : Window
         UpdateQueueCount();
     }
 
+    private void RemovePlaylist_Click(object sender, RoutedEventArgs e)
+    {
+        // Remove only the selected playlist; its tracks and source folders remain.
+        if (PlaylistList.SelectedItem is not MusicPlaylist selectedPlaylist)
+        {
+            MessageBox.Show("Select a playlist to remove.", "DARKWAVE",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var visibleTracks = selectedPlaylist.Tracks.ToList();
+        var playingTrack = reader != null && currentIndex >= 0 && currentIndex < activeTracks.Count
+            ? activeTracks[currentIndex]
+            : null;
+        var stopPlayback = playingTrack != null && visibleTracks.Contains(playingTrack);
+
+        if (stopPlayback)
+        {
+            DisposeAudio();
+            PlayButton.Content = "▶";
+            TrackTitle.Text = "No track loaded";
+            TrackInfo.Text = "Select a track to begin playback";
+            changingSeek = true;
+            SeekSlider.Value = 0;
+            changingSeek = false;
+            ElapsedText.Text = "0:00";
+            DurationText.Text = "0:00";
+        }
+
+        playlists.Remove(selectedPlaylist);
+        PlaylistList.SelectedItem = null;
+
+        if (folders.Count > 0)
+            FolderList.SelectedIndex = 0;
+        else if (playlists.Count > 0)
+            PlaylistList.SelectedIndex = 0;
+        else
+        {
+            FolderTracks.ItemsSource = null;
+            FolderContentsTitle.Text = "TRACKS IN SELECTED FOLDER";
+            activeTracks.Clear();
+            currentIndex = -1;
+        }
+
+        UpdateQueueCount();
+    }
+
     private void Clear_Click(object sender, RoutedEventArgs e)
     {
         DisposeAudio();
