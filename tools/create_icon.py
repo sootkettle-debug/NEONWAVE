@@ -1,46 +1,59 @@
 from pathlib import Path
+from math import hypot, sin, pi
 from PIL import Image, ImageDraw
 
-# Draw large, then downsample for crisp small Windows icon sizes.
+# Render at high resolution, then downsample for crisp Windows icon sizes.
 ICON = 256
 SCALE = 4
 S = ICON * SCALE
 PURPLE = (50, 16, 78, 255)
 BLACK = (0, 0, 0, 255)
+TRANSPARENT = (0, 0, 0, 0)
 OUT = Path("NEONWAVE/app.ico")
 
-im = Image.new("RGBA", (S, S), PURPLE)
+im = Image.new("RGBA", (S, S), TRANSPARENT)
 draw = ImageDraw.Draw(im)
 
-# Bold crescent crest: a C-shaped moon opening to the right.
-# The offset cut-out creates the open side without outlines or decoration.
-draw.ellipse((54*SCALE, 28*SCALE, 190*SCALE, 164*SCALE), fill=BLACK)
-draw.ellipse((91*SCALE, 8*SCALE, 227*SCALE, 144*SCALE), fill=PURPLE)
+# Round deep-purple badge with transparent corners.
+margin = 10 * SCALE
+draw.ellipse((margin, margin, S - margin, S - margin), fill=PURPLE)
 
-# A single broad, smooth wave (~) beneath the crescent.
-def bezier(points, steps=320):
-    result = []
-    for i in range(steps + 1):
-        t = i / steps
-        u = 1 - t
-        x = (u**3 * points[0][0] +
-             3*u*u*t * points[1][0] +
-             3*u*t*t * points[2][0] +
-             t**3 * points[3][0])
-        y = (u**3 * points[0][1] +
-             3*u*u*t * points[1][1] +
-             3*u*t*t * points[2][1] +
-             t**3 * points[3][1])
-        result.append((round(x*SCALE), round(y*SCALE)))
-    return result
+# One bold, smooth tilde wave. Its thickness eases to zero at both ends
+# so the silhouette finishes in clean, sharp tapered points.
+p0 = (34.0, 112.0)
+p1 = (91.0, 158.0)
+p2 = (158.0, 91.0)
+p3 = (222.0, 132.0)
 
-upper = bezier([(43, 190), (96, 151), (154, 224), (213, 184)])
-lower = bezier([(43, 222), (96, 183), (154, 256), (213, 216)])
+def bezier(t):
+    u = 1.0 - t
+    return (
+        u**3 * p0[0] + 3*u*u*t * p1[0] + 3*u*t*t * p2[0] + t**3 * p3[0],
+        u**3 * p0[1] + 3*u*u*t * p1[1] + 3*u*t*t * p2[1] + t**3 * p3[1],
+    )
+
+upper = []
+lower = []
+steps = 800
+max_half_width = 17.0
+for i in range(steps + 1):
+    t = i / steps
+    x, y = bezier(t)
+    before = bezier(max(0.0, t - 0.001))
+    after = bezier(min(1.0, t + 0.001))
+    dx, dy = after[0] - before[0], after[1] - before[1]
+    length = hypot(dx, dy) or 1.0
+    nx, ny = -dy / length, dx / length
+    half_width = max_half_width * (sin(pi * t) ** 0.72)
+    upper.append(((x + nx * half_width) * SCALE,
+                  (y + ny * half_width) * SCALE))
+    lower.append(((x - nx * half_width) * SCALE,
+                  (y - ny * half_width) * SCALE))
+
 draw.polygon(upper + lower[::-1], fill=BLACK)
 
-# Export the same artwork at all standard Windows icon resolutions.
 OUT.parent.mkdir(parents=True, exist_ok=True)
 sizes = [16, 24, 32, 48, 64, 128, 256]
 images = {n: im.resize((n, n), Image.Resampling.LANCZOS) for n in sizes}
 images[256].save(OUT, format="ICO", sizes=[(n, n) for n in sizes])
-print(f"Created DARKWAVE moon-and-wave icon: {OUT}")
+print(f"Created DARKWAVE round wave icon: {OUT}")
