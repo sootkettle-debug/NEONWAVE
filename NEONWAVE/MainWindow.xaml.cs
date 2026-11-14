@@ -600,7 +600,7 @@ public partial class MainWindow : Window
 
     private void Remove_Click(object sender, RoutedEventArgs e)
     {
-        // A selected folder takes priority over any track selection.
+        // Remove the selected folder and its tracks from the library.
         if (FolderList.SelectedItem is MusicFolder selectedFolder)
         {
             var folderTracks = selectedFolder.Tracks.ToList();
@@ -646,26 +646,26 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (FolderTracks.SelectedItem is not Track selected) return;
-        if (reader != null && currentIndex >= 0 && currentIndex < activeTracks.Count &&
-            ReferenceEquals(activeTracks[currentIndex], selected))
+        // Remove only the selected playlist entry; its tracks and folders remain.
+        if (PlaylistList.SelectedItem is MusicPlaylist selectedPlaylist)
         {
-            DisposeAudio();
-            PlayButton.Content = "▶";
-            TrackTitle.Text = "No track loaded";
-        }
+            playlists.Remove(selectedPlaylist);
+            PlaylistList.SelectedItem = null;
 
-        var selectedPlaylist = PlaylistList.SelectedItem as MusicPlaylist;
-        selectedPlaylist?.Tracks.Remove(selected);
-        var folder = folders.FirstOrDefault(f => f.Tracks.Contains(selected));
-        folder?.Tracks.Remove(selected);
-        allTracks.Remove(selected);
-        if (folder != null && folder.Tracks.Count == 0) folders.Remove(folder);
-        if (selectedPlaylist != null) ShowPlaylist(selectedPlaylist);
-        else if (folder != null && folders.Contains(folder)) ShowFolder(folder);
-        else if (folders.Count > 0) FolderList.SelectedIndex = 0;
-        else { FolderTracks.ItemsSource = null; activeTracks.Clear(); currentIndex = -1; }
-        UpdateQueueCount();
+            if (folders.Count > 0)
+                FolderList.SelectedIndex = 0;
+            else if (playlists.Count > 0)
+                PlaylistList.SelectedIndex = 0;
+            else
+            {
+                FolderTracks.ItemsSource = null;
+                FolderContentsTitle.Text = "TRACKS IN SELECTED FOLDER";
+                activeTracks.Clear();
+                currentIndex = -1;
+            }
+
+            UpdateQueueCount();
+        }
     }
 
     private void RemoveTrack_Click(object sender, RoutedEventArgs e)
