@@ -202,10 +202,10 @@ public partial class MainWindow : Window
         LibraryRow.Height = expand
             ? new GridLength(1, GridUnitType.Star)
             : GridLength.Auto;
-        MusicLibraryPanel.Height = expand ? double.NaN : 48;
+        MusicLibraryPanel.Height = expand ? double.NaN : 32;
         MusicLibraryPanel.Padding = expand
             ? new Thickness(14)
-            : new Thickness(14, 8, 14, 8);
+            : new Thickness(14, 0, 14, 0);
         LibraryHeader.Margin = expand
             ? new Thickness(0, 0, 0, 10)
             : new Thickness(0);
