@@ -66,6 +66,8 @@ public partial class MainWindow : Window
     private int currentIndex = -1;
     private bool advanceQueued;
     private double expandedWindowHeight;
+    private Color currentAccentColor = Color.FromRgb(0, 184, 76);
+    private SolidColorBrush currentAccentBrush = new(Color.FromRgb(0, 184, 76));
 
     private static readonly string[] SupportedExtensions =
         [".mp3", ".wav", ".aiff", ".aif", ".wma", ".aac", ".m4a", ".flac"];
@@ -75,6 +77,13 @@ public partial class MainWindow : Window
         InitializeComponent();
         expandedWindowHeight = Height;
         ApplyAccentColor(Color.FromRgb(0, 184, 76));
+        // Re-apply accents as WPF creates template content and virtualized list rows.
+        PlaybackControlsPanel.AddHandler(FrameworkElement.LoadedEvent,
+            new RoutedEventHandler(AccentElement_Loaded), true);
+        MusicLibraryPanel.AddHandler(FrameworkElement.LoadedEvent,
+            new RoutedEventHandler(AccentElement_Loaded), true);
+        Loaded += (_, _) => Dispatcher.BeginInvoke(ApplyAccentToLoadedPanels,
+            DispatcherPriority.Loaded);
         FolderList.ItemsSource = folders;
         PlaylistList.ItemsSource = playlists;
         timer.Tick += (_, _) => UpdateDisplay();
@@ -94,30 +103,44 @@ public partial class MainWindow : Window
 
     private void ApplyAccentColor(Color color)
     {
-        var brush = new SolidColorBrush(color);
-        ApplyAccentToVisualTree(PlaybackControlsPanel, brush, color);
-        ApplyAccentToVisualTree(MusicLibraryPanel, brush, color);
+        currentAccentColor = color;
+        currentAccentBrush = new SolidColorBrush(color);
+        ApplyAccentToVisualTree(PlaybackControlsPanel, currentAccentBrush, color);
+        ApplyAccentToVisualTree(MusicLibraryPanel, currentAccentBrush, color);
+    }
+
+    private void AccentElement_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (e.OriginalSource is not DependencyObject element) return;
+        ApplyAccentToElement(element, currentAccentBrush);
+    }
+
+    private void ApplyAccentToLoadedPanels()
+    {
+        ApplyAccentToVisualTree(PlaybackControlsPanel, currentAccentBrush, currentAccentColor);
+        ApplyAccentToVisualTree(MusicLibraryPanel, currentAccentBrush, currentAccentColor);
+    }
+
+    private static void ApplyAccentToElement(DependencyObject element, Brush brush)
+    {
+        // TextBlock and templated content use different foreground properties.
+        if (element is TextBlock textBlock)
+            textBlock.Foreground = brush;
+        else if (element is Control control)
+            control.Foreground = brush;
+        else if (element is ContentPresenter presenter)
+            presenter.SetValue(TextElement.ForegroundProperty, brush);
     }
 
     private static void ApplyAccentToVisualTree(DependencyObject root, Brush brush, Color color)
     {
-        // VisualTreeHelper only accepts Visual/Visual3D objects. WPF templates can
-        // expose other DependencyObject types, so stop safely instead of throwing
-        // while the user changes the accent during playback.
-        if (root is not Visual && root is not System.Windows.Media.Media3D.Visual3D)
-            return;
-
-        if (root is TextBlock textBlock)
-            textBlock.Foreground = brush;
-        if (root is Control control)
-            control.Foreground = brush;
+        ApplyAccentToElement(root, brush);
 
         if (root is Border border && border.Name == "PlayingDot")
         {
             border.Background = brush;
             if (border.Effect is DropShadowEffect glow)
             {
-                // Effects may be frozen by WPF/resource sharing; clone before editing.
                 if (glow.IsFrozen)
                 {
                     glow = glow.Clone();
@@ -129,9 +152,22 @@ public partial class MainWindow : Window
             }
         }
 
-        int childCount = VisualTreeHelper.GetChildrenCount(root);
-        for (int i = 0; i < childCount; i++)
-            ApplyAccentToVisualTree(VisualTreeHelper.GetChild(root, i), brush, color);
+        // Walk both visual and logical children. Some WPF template elements
+        // (notably ContentPresenter) are not reliably exposed by only one tree.
+        var children = new List<DependencyObject>();
+        if (root is Visual || root is System.Windows.Media.Media3D.Visual3D)
+        {
+            int count = VisualTreeHelper.GetChildrenCount(root);
+            for (int i = 0; i < count; i++)
+                children.Add(VisualTreeHelper.GetChild(root, i));
+        }
+
+        foreach (var child in LogicalTreeHelper.GetChildren(root))
+            if (child is DependencyObject dependencyObject && !children.Contains(dependencyObject))
+                children.Add(dependencyObject);
+
+        foreach (var child in children)
+            ApplyAccentToVisualTree(child, brush, color);
     }
 
     private static bool IsAudioFile(string path) =>
