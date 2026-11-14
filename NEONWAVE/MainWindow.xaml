@@ -33,15 +33,7 @@
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition x:Name="LibraryRow" Height="*"/></Grid.RowDefinitions>
   <Border x:Name="LogoGlow" Visibility="Collapsed" Width="0" Height="0"/>
   <Border Grid.Row="0" Background="#20272A" BorderBrush="#657176" BorderThickness="1" CornerRadius="4" Padding="16,4,16,16" Margin="0,0,0,14"><Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><Grid Grid.Row="0"><StackPanel Margin="0,58,0,0"><TextBlock Text="NOW PLAYING" Foreground="#B6C9BA" FontSize="10" FontWeight="Bold"/><TextBlock x:Name="TrackTitle" Text="No track loaded" Foreground="#62696B" FontSize="21" FontWeight="SemiBold" Margin="0,5,0,0"/><TextBlock x:Name="TrackInfo" Text="Add an audio folder or drop music files here" Foreground="#9AA8A4" FontSize="11" Margin="0,3,0,0"/></StackPanel><StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
- <Border Width="62" Height="62" CornerRadius="31" Margin="0,0,10,0" BorderThickness="1" BorderBrush="#485257">
-  <Border.Background><RadialGradientBrush><GradientStop Color="#252B2D" Offset="0"/><GradientStop Color="#111719" Offset="0.72"/><GradientStop Color="#050708" Offset="1"/></RadialGradientBrush></Border.Background>
-  <Border.Effect><DropShadowEffect Color="#000000" BlurRadius="7" ShadowDepth="2" Opacity="0.85"/></Border.Effect>
-  <Grid Margin="9">
-   <Path Data="M 36,8 A 19,19 0 1 0 36,42 A 14,17 0 1 1 36,8 Z" Fill="#080B0C" Stroke="#3B4446" StrokeThickness="1.1" StrokeLineJoin="Round"/>
-   <Path Data="M 5,32 C 11,27 16,27 21,31 C 25,34 28,35 32,31 C 35,28 39,24 44,25 C 40,29 40,33 36,37 C 32,41 27,42 22,39 C 17,36 12,35 5,38 Z" Fill="#080B0C" Stroke="#414A4C" StrokeThickness="1.1" StrokeLineJoin="Round"/>
-   <Path Data="M 5,32 C 11,27 16,27 21,31 C 25,34 28,35 32,31 C 35,28 39,24 44,25" Fill="Transparent" Stroke="#586164" StrokeThickness="0.9"/>
-  </Grid>
- </Border>
+ <Image Width="76" Height="76" Source="/Assets/DarkwaveLogo.png" Stretch="Uniform" Margin="0,0,10,0"/>
  <Border Width="76" Height="76" CornerRadius="3" Background="#0B1012" BorderBrush="#C7D8C7" BorderThickness="1"><Viewbox><TextBlock Text="♫" Foreground="#C7D8C7" FontSize="44"/></Viewbox></Border>
 </StackPanel><Grid HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,0,0,0" IsHitTestVisible="False">
  <TextBlock Text="DARKWAVE" FontFamily="pack://application:,,,/Fonts/#Pirata One" FontSize="44" Foreground="#858B8D" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="-1,0,0,0"/>
