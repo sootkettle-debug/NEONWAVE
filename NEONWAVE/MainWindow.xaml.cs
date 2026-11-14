@@ -591,6 +591,52 @@ public partial class MainWindow : Window
 
     private void Remove_Click(object sender, RoutedEventArgs e)
     {
+        // A selected folder takes priority over any track selection.
+        if (FolderList.SelectedItem is MusicFolder selectedFolder)
+        {
+            var folderTracks = selectedFolder.Tracks.ToList();
+            var currentTrackIsInFolder = reader != null && currentIndex >= 0 &&
+                currentIndex < activeTracks.Count && folderTracks.Contains(activeTracks[currentIndex]);
+
+            if (currentTrackIsInFolder)
+            {
+                DisposeAudio();
+                PlayButton.Content = "▶";
+                TrackTitle.Text = "No track loaded";
+                TrackInfo.Text = "Select a track to begin playback";
+                changingSeek = true;
+                SeekSlider.Value = 0;
+                changingSeek = false;
+                ElapsedText.Text = "0:00";
+                DurationText.Text = "0:00";
+            }
+
+            foreach (var playlist in playlists)
+                foreach (var track in folderTracks)
+                    playlist.Tracks.Remove(track);
+
+            foreach (var track in folderTracks)
+                allTracks.Remove(track);
+
+            folders.Remove(selectedFolder);
+            FolderList.SelectedItem = null;
+
+            if (folders.Count > 0)
+                FolderList.SelectedIndex = 0;
+            else
+            {
+                FolderTracks.ItemsSource = null;
+                FolderContentsTitle.Text = "TRACKS IN SELECTED FOLDER";
+                activeTracks.Clear();
+                currentIndex = -1;
+                TrackTitle.Text = "No track loaded";
+                TrackInfo.Text = "Add an audio folder or drop music files here";
+            }
+
+            UpdateQueueCount();
+            return;
+        }
+
         if (FolderTracks.SelectedItem is not Track selected) return;
         if (reader != null && currentIndex >= 0 && currentIndex < activeTracks.Count &&
             ReferenceEquals(activeTracks[currentIndex], selected))
