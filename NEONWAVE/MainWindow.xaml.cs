@@ -191,8 +191,8 @@ public partial class MainWindow : Window
         else
         {
             expandedWindowHeight = Height;
-            MinHeight = 360;
-            Height = 360;
+            MinHeight = 144;
+            Height = 144;
         }
 
         LibraryActions.Visibility = expand ? Visibility.Visible : Visibility.Hidden;
