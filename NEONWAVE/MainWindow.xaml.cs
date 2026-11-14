@@ -195,7 +195,7 @@ public partial class MainWindow : Window
             Height = 450;
         }
 
-        LibraryActions.Visibility = expand ? Visibility.Visible : Visibility.Collapsed;
+        LibraryActions.Visibility = expand ? Visibility.Visible : Visibility.Hidden;
         LibraryContent.Visibility = expand ? Visibility.Visible : Visibility.Collapsed;
         LibraryContent.Height = expand ? double.NaN : 0;
         QueueCount.Visibility = expand ? Visibility.Visible : Visibility.Collapsed;
