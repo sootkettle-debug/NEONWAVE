@@ -26,10 +26,62 @@ jobs:
         run: dotnet restore NEONWAVE/NEONWAVE.csproj
       - name: Publish standalone x64 app
         run: dotnet publish NEONWAVE/NEONWAVE.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o publish
-      - name: Upload NEONWAVE.exe
+      - name: Upload DARKWAVE.exe
         uses: actions/upload-artifact@v4
         with:
           name: DARKWAVE-Windows-x64
           path: publish/DARKWAVE.exe
           if-no-files-found: error
           retention-days: 30
+
+  release-v1:
+    name: Publish DARKWAVE v1.0
+    if: github.ref == 'refs/heads/darkwave' && contains(github.event.head_commit.message, '[release-v1]')
+    needs: build
+    runs-on: windows-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - name: Download built DARKWAVE executable
+        uses: actions/download-artifact@v4
+        with:
+          name: DARKWAVE-Windows-x64
+          path: release-files
+      - name: Package standalone player
+        shell: pwsh
+        run: Compress-Archive -Path release-files/DARKWAVE.exe -DestinationPath DARKWAVE-v1.0-Windows-x64.zip
+      - name: Publish public GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          @'
+          # DARKWAVE v1.0 — Windows Music Player
+
+          DARKWAVE is a standalone music player for 64-bit Windows, with a glossy car-stereo-inspired interface, customizable accent colors, and easy local music library and playlist management.
+
+          ## Audio formats
+          The player recognizes MP3, WAV, FLAC, AAC, M4A, WMA, AIFF (.aiff), and AIFF (.aif). Actual playback of particular files depends on Windows/NAudio codec support.
+
+          ## Features
+          - Play, pause, stop, skip tracks, and seek within a song
+          - Add individual tracks or import entire folders (including subfolders)
+          - Drag-and-drop audio files and folders
+          - Save and load DARKWAVE playlists (.dwv.json)
+          - Select tracks, manage folders and playlists, and remove entries without deleting source files
+          - Collapsible music library, playback progress and volume controls
+          - Purple, green, orange, and blue accent colors
+          - Animated logo glow and playing-track indicator
+          - Keyboard shortcuts: Space (play/pause), Ctrl+O (add files), Left/Right arrows (seek five seconds)
+
+          ## Install
+          1. Download **DARKWAVE-v1.0-Windows-x64.zip** below.
+          2. Extract the ZIP to a folder.
+          3. Run **DARKWAVE.exe**.
+
+          No separate .NET installation is required. DARKWAVE plays local audio files; streaming services and CD ripping/burning are not included.
+
+          This is the first public release. Playback and UI behavior can vary with Windows configuration and audio codecs.
+          '@ | Set-Content -Path RELEASE_NOTES.md -Encoding utf8
+          gh release create v1.0.0 DARKWAVE-v1.0-Windows-x64.zip --repo "${{ github.repository }}" --target "${{ github.sha }}" --title "DARKWAVE v1.0" --notes-file RELEASE_NOTES.md --latest
