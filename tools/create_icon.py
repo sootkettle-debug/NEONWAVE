@@ -1,59 +1,17 @@
 from pathlib import Path
-from math import hypot, sin, pi
-from PIL import Image, ImageDraw
+from base64 import b64decode
+from io import BytesIO
+from PIL import Image
 
-# Render at high resolution, then downsample for crisp Windows icon sizes.
-ICON = 256
-SCALE = 4
-S = ICON * SCALE
-WHITE = (255, 255, 255, 255)
-BLACK = (0, 0, 0, 255)
-TRANSPARENT = (0, 0, 0, 0)
+# The supplied DARKWAVE emblem, optimized to a transparent 128px source.
+LOGO_PNG = (
+    "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"
+)
+
 OUT = Path("NEONWAVE/app.ico")
-
-im = Image.new("RGBA", (S, S), TRANSPARENT)
-draw = ImageDraw.Draw(im)
-
-# Round white badge with transparent corners.
-margin = 10 * SCALE
-draw.ellipse((margin, margin, S - margin, S - margin), fill=WHITE)
-
-# One bold, smooth tilde wave. Its thickness eases to zero at both ends
-# so the silhouette finishes in clean, sharp tapered points.
-p0 = (34.0, 112.0)
-p1 = (91.0, 158.0)
-p2 = (158.0, 91.0)
-p3 = (222.0, 132.0)
-
-def bezier(t):
-    u = 1.0 - t
-    return (
-        u**3 * p0[0] + 3*u*u*t * p1[0] + 3*u*t*t * p2[0] + t**3 * p3[0],
-        u**3 * p0[1] + 3*u*u*t * p1[1] + 3*u*t*t * p2[1] + t**3 * p3[1],
-    )
-
-upper = []
-lower = []
-steps = 800
-max_half_width = 17.0
-for i in range(steps + 1):
-    t = i / steps
-    x, y = bezier(t)
-    before = bezier(max(0.0, t - 0.001))
-    after = bezier(min(1.0, t + 0.001))
-    dx, dy = after[0] - before[0], after[1] - before[1]
-    length = hypot(dx, dy) or 1.0
-    nx, ny = -dy / length, dx / length
-    half_width = max_half_width * (sin(pi * t) ** 0.72)
-    upper.append(((x + nx * half_width) * SCALE,
-                  (y + ny * half_width) * SCALE))
-    lower.append(((x - nx * half_width) * SCALE,
-                  (y - ny * half_width) * SCALE))
-
-draw.polygon(upper + lower[::-1], fill=BLACK)
-
-OUT.parent.mkdir(parents=True, exist_ok=True)
+source = Image.open(BytesIO(b64decode(LOGO_PNG))).convert("RGBA")
 sizes = [16, 24, 32, 48, 64, 128, 256]
-images = {n: im.resize((n, n), Image.Resampling.LANCZOS) for n in sizes}
+images = {n: source.resize((n, n), Image.Resampling.LANCZOS) for n in sizes}
+OUT.parent.mkdir(parents=True, exist_ok=True)
 images[256].save(OUT, format="ICO", sizes=[(n, n) for n in sizes])
-print(f"Created DARKWAVE round wave icon: {OUT}")
+print(f"Created DARKWAVE emblem icon: {OUT}")
